@@ -5,7 +5,7 @@ from kot import config
 from kot.render import (fmt_temp, make_ctx, rel, render_404, render_food, render_guide, render_home,
                         render_hub, render_leftout, render_static, url_for)
 from kot.schema import Guide, Section, Source, Span
-from tests.htmlutil import first_after_h1, parse
+from kot.htmltree import first_after_h1, parse
 from tests.test_schema import make_food, make_leftout
 
 
@@ -126,6 +126,11 @@ class OtherPageTests(unittest.TestCase):
 
     def test_home_loads_checker_module(self):
         self.assertIn('<script type="module" src="static/checker.js"></script>', render_home(CTX))
+
+    def test_footer_skips_empty_categories(self):
+        html = render_food(FOOD, CTX)
+        self.assertIn('href="../../category/leftovers/"', html)
+        self.assertNotIn("category/dairy/", html)
 
     def test_escapes_data(self):
         html = render_food(make_food(why="<script>bad()</script>"), CTX)

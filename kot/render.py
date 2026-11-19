@@ -160,7 +160,9 @@ def shell(path: str, title: str, description: str, body: str, ctx: dict, *,
         f'<a class="header-cta" href="{L("")}#check">Check a food</a>'
         "</div></header>"
     )
-    cats = " · ".join(f'<a href="{L(url_for("category", c))}">{escape(n)}</a>' for c, n in config.CATEGORIES.items())
+    used = {f.category for f in ctx.get("foods_by_slug", {}).values()}
+    cats = " · ".join(f'<a href="{L(url_for("category", c))}">{escape(n)}</a>'
+                      for c, n in config.CATEGORIES.items() if c in used)
     footer = (
         '<footer class="site-footer"><div class="wrap">'
         f'<p class="cats">{cats}</p>'
@@ -372,4 +374,4 @@ def render_404(ctx: dict) -> str:
     body = ("<h1>Page not found</h1><p>That page does not exist. "
             f'Try the <a href="{config.BASE_URL}#check">food checker</a> or the '
             f'<a href="{config.BASE_URL}">home page</a>.</p>')
-    return shell("404.html", "Page not found", "This page does not exist on Keep or Toss.", body, ctx, absolute=True)
+    return shell("404.html", "Page not found", "This page does not exist on Keep or Toss. Use the food checker or browse every food from the home page.", body, ctx, absolute=True)
