@@ -1,0 +1,3 @@
+ALL_FOODS = []
+ALL_LEFTOUT = []
+ALL_GUIDES = []
