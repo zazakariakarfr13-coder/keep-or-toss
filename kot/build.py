@@ -1,0 +1,93 @@
+"""Build the whole site into a folder: `py -3 -m kot.build [out_dir]`."""
+from __future__ import annotations
+
+import datetime as dt
+import json
+import shutil
+import sys
+from pathlib import Path
+
+from kot import config, render
+from kot.schema import validate_all
+
+ROOT = Path(__file__).resolve().parent.parent
+STATIC = ROOT / "static"
+
+
+def _write(out_dir: Path, path: str, html: str) -> None:
+    target = out_dir / path / "index.html" if not path.endswith(".html") else out_dir / path
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(html, encoding="utf-8")
+
+
+def checker_data(foods) -> list[dict]:
+    out = []
+    for f in sorted(foods, key=lambda f: f.name):
+        places = {}
+        for place, s in f.storage.items():
+            places[place] = None if s is None else {
+                "min": s.min, "max": s.max, "unit": s.unit, "maxHours": s.max_hours(),
+                "basis": "quality" if place == "freezer" else "safety",
+                "note": render.expand(s.note) if s.note else "",
+            }
+        out.append({"slug": f.slug, "name": f.name, "category": f.category, "places": places})
+    return out
+
+
+def build(out_dir: Path, foods=None, leftout=None, guides=None) -> list[str]:
+    if foods is None or leftout is None or guides is None:
+        import data
+        foods = data.ALL_FOODS if foods is None else foods
+        leftout = data.ALL_LEFTOUT if leftout is None else leftout
+        guides = data.ALL_GUIDES if guides is None else guides
+    validate_all(foods, leftout, guides)
+
+    out_dir = Path(out_dir)
+    if out_dir.exists():
+        shutil.rmtree(out_dir)
+    out_dir.mkdir(parents=True)
+    shutil.copytree(STATIC, out_dir / "static")
+
+    share = {p.stem for p in (STATIC / "img" / "share").glob("*.png")} if (STATIC / "img" / "share").is_dir() else set()
+    ctx = render.make_ctx(foods, leftout, guides, share)
+
+    pages: dict[str, str] = {"": render.render_home(ctx)}
+    for f in foods:
+        pages[render.url_for("food", f.slug)] = render.render_food(f, ctx)
+    for lo in leftout:
+        pages[render.url_for("leftout", lo.slug)] = render.render_leftout(lo, ctx)
+    for g in guides:
+        pages[render.url_for("guide", g.slug)] = render.render_guide(g, ctx)
+    for cat in config.CATEGORIES:
+        in_cat = [f for f in foods if f.category == cat]
+        if in_cat:
+            pages[render.url_for("category", cat)] = render.render_hub(cat, in_cat, ctx)
+    for kind in ("about", "sources", "privacy"):
+        pages[render.url_for(kind)] = render.render_static(kind, ctx)
+
+    for path, html in pages.items():
+        _write(out_dir, path, html)
+    _write(out_dir, "404.html", render.render_404(ctx))
+
+    today = dt.date.today().isoformat()
+    urls = "".join(f"<url><loc>{config.BASE_URL}{p}</loc><lastmod>{today}</lastmod></url>" for p in pages)
+    (out_dir / "sitemap.xml").write_text(
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        f'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{urls}</urlset>\n', encoding="utf-8")
+    (out_dir / "checker.json").write_text(json.dumps(checker_data(foods), ensure_ascii=False), encoding="utf-8")
+    return list(pages)
+
+
+def main(argv: list[str]) -> int:
+    out = Path(argv[1]) if len(argv) > 1 else ROOT / "_site"
+    try:
+        paths = build(out)
+    except ValueError as e:
+        print(f"Build failed: {e}", file=sys.stderr)
+        return 1
+    print(f"Built {len(paths)} pages into {out}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))
