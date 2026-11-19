@@ -1,0 +1,53 @@
+name: Test, build and deploy Keep or Toss
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Python tests
+        run: python -m unittest discover -s tests
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: "lts/*"
+      - name: Checker tests
+        run: node --test tests/js/
+      - name: Build site
+        run: python -m kot.build _site
+      - name: Site check (links, answer-first, reading level, trap-guard)
+        run: python scripts/check_site.py _site
+      - name: Configure Pages
+        uses: actions/configure-pages@v6
+      - name: Upload site artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+          name: github-pages-${{ github.run_id }}
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
+        with:
+          artifact_name: github-pages-${{ github.run_id }}
