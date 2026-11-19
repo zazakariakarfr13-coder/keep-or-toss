@@ -1,4 +1,5 @@
 import importlib.util
+from dataclasses import replace
 import tempfile
 import unittest
 from pathlib import Path
@@ -13,7 +14,7 @@ check_site = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(check_site)
 check = check_site.check
 
-RICE = FOODS[0]
+RICE = replace(FOODS[0], related=[])  # standalone fixture: no links to other foods
 
 
 class CheckSiteTests(unittest.TestCase):
