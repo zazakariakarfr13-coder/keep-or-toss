@@ -331,6 +331,7 @@ def render_home(ctx: dict) -> str:
         '<input id="food-search" type="search" placeholder="e.g. rice, eggs, salsa" autocomplete="off">'
         f'<ul class="food-list" id="all-foods">{all_foods}</ul></section>',
         _disclaimer(),
+        '<script type="module" src="static/checker.js"></script>',
     ])
     desc = "Is your food still safe to eat? Clear keep-or-toss answers for the fridge, freezer and pantry, from official food safety sources."
     site = {"@context": "https://schema.org", "@type": "WebSite", "name": config.SITE_NAME, "url": config.BASE_URL}

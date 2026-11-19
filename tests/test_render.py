@@ -124,6 +124,9 @@ class OtherPageTests(unittest.TestCase):
             self.assertIn("<h1>", render_static(kind, CTX))
         self.assertIn("<h1>", render_404(CTX))
 
+    def test_home_loads_checker_module(self):
+        self.assertIn('<script type="module" src="static/checker.js"></script>', render_home(CTX))
+
     def test_escapes_data(self):
         html = render_food(make_food(why="<script>bad()</script>"), CTX)
         self.assertNotIn("<script>bad()", html)
