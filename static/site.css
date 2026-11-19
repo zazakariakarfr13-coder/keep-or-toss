@@ -1,1 +1,141 @@
-/* Keep or Toss styles (filled in Task 5) */
+/* Keep or Toss — cool fridge identity. Mobile first. */
+:root {
+  --bg: #f2f7f8;
+  --paper: #ffffff;
+  --ink: #0b2530;
+  --muted: #4a6470;
+  --line: #d3e3e8;
+  --brand: #0f6e8c;
+  --brand-ink: #ffffff;
+  --mint: #d4f1e8;
+  --keep: #13794b;   --keep-bg: #e2f5eb;
+  --today: #8f5300;  --today-bg: #fff0d1;
+  --toss: #b42318;   --toss-bg: #fde8e6;
+  --shadow: 0 1px 2px rgba(11, 37, 48, .06), 0 8px 24px rgba(11, 37, 48, .06);
+  --radius: 16px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #08171c; --paper: #0f252d; --ink: #e5f1f3; --muted: #9db6be; --line: #1e3c46;
+    --brand: #5cc3e0; --brand-ink: #062029; --mint: #123c36;
+    --keep: #5fd89c; --keep-bg: #0f3324;
+    --today: #f4b64c; --today-bg: #3a2a0c;
+    --toss: #ff8f86; --toss-bg: #3d1513;
+    --shadow: none;
+    color-scheme: dark;
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font: 17px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+a { color: var(--brand); text-underline-offset: 3px; }
+a:hover { text-decoration-thickness: 2px; }
+:focus-visible { outline: 3px solid var(--brand); outline-offset: 2px; border-radius: 6px; }
+.wrap { max-width: 760px; margin: 0 auto; padding: 0 16px; }
+.small { font-size: .85rem; color: var(--muted); }
+
+/* header */
+.site-header { background: var(--paper); border-bottom: 1px solid var(--line); }
+.site-header .wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 60px; }
+.logo { display: flex; align-items: center; gap: 10px; color: var(--ink); text-decoration: none; font-weight: 800; font-size: 1.15rem; letter-spacing: -.01em; }
+.logo em { font-style: normal; color: var(--muted); font-weight: 600; }
+.logo-mark { width: 30px; height: 30px; fill: var(--brand); stroke: var(--brand-ink); stroke-width: 2; stroke-linecap: round; }
+.logo-mark .tick { stroke: var(--mint); stroke-width: 3; fill: none; }
+.header-cta { background: var(--mint); color: var(--ink); text-decoration: none; font-weight: 700; font-size: .9rem; padding: 8px 14px; border-radius: 999px; white-space: nowrap; }
+
+.crumbs { font-size: .85rem; color: var(--muted); margin: 14px 0 0; }
+.crumbs a { color: var(--muted); }
+
+main { padding: 6px 0 40px; }
+h1 { font-size: clamp(1.7rem, 6vw, 2.4rem); line-height: 1.15; letter-spacing: -.02em; margin: 12px 0 14px; }
+h2 { font-size: 1.25rem; line-height: 1.3; margin: 34px 0 8px; }
+main section > ul, main > ul { padding-left: 1.2em; }
+li { margin: 4px 0; }
+
+/* the answer box: always first, always big */
+.answer {
+  background: var(--paper); border: 1px solid var(--line); border-top: 6px solid var(--brand);
+  border-radius: var(--radius); box-shadow: var(--shadow); padding: 6px 16px; margin: 0 0 14px;
+}
+.times { list-style: none; margin: 0; padding: 0; }
+.place {
+  display: grid; grid-template-columns: 34px 1fr auto; align-items: center; column-gap: 12px;
+  padding: 12px 0; border-bottom: 1px solid var(--line);
+}
+.place:last-child { border-bottom: 0; }
+.icon { width: 30px; height: 30px; fill: none; stroke: var(--brand); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.place-name { font-weight: 700; font-size: 1.05rem; }
+.time { font-weight: 800; font-size: 1.3rem; text-align: right; letter-spacing: -.01em; }
+.place .tag {
+  grid-column: 2; justify-self: start; font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
+  background: var(--mint); color: var(--ink); border-radius: 999px; padding: 1px 8px; margin-top: 2px;
+}
+.place .note { grid-column: 2 / 4; font-size: .9rem; color: var(--muted); }
+.place.not-rec .time { color: var(--toss); font-size: 1.05rem; }
+.place.not-rec .time::before { content: "✕ "; }
+.place.not-rec .icon { stroke: var(--muted); }
+
+.why { font-size: 1.05rem; margin: 0 0 12px; }
+.cta { margin: 0 0 8px; }
+.button {
+  display: inline-block; background: var(--brand); color: var(--brand-ink); font-weight: 700;
+  text-decoration: none; padding: 12px 18px; border-radius: 12px; border: 0; font-size: 1rem; cursor: pointer;
+}
+.button:hover { filter: brightness(1.08); }
+
+/* verdict boxes (left-out pages and the checker) */
+.verdict { border-top-width: 6px; padding: 14px 16px; }
+.verdict-word { font-size: 1.9rem; font-weight: 900; letter-spacing: .02em; margin: 0; }
+.verdict-line { margin: 4px 0 4px; font-size: 1.05rem; }
+.verdict-keep  { border-top-color: var(--keep);  background: var(--keep-bg); }
+.verdict-keep  .verdict-word { color: var(--keep); }
+.verdict-today { border-top-color: var(--today); background: var(--today-bg); }
+.verdict-today .verdict-word { color: var(--today); }
+.verdict-toss  { border-top-color: var(--toss);  background: var(--toss-bg); }
+.verdict-toss  .verdict-word { color: var(--toss); }
+
+.short-answer p { font-size: 1.15rem; font-weight: 600; margin: 10px 0; }
+
+/* checker */
+.checker { padding: 16px; }
+.checker .lead { margin: 4px 0 12px; color: var(--muted); }
+.checker-form { display: grid; gap: 12px; }
+.checker-form label { display: block; font-weight: 700; font-size: .95rem; margin-bottom: 4px; }
+.checker-form select, .checker-form input, #food-search {
+  width: 100%; font: inherit; color: var(--ink); background: var(--bg); border: 2px solid var(--line);
+  border-radius: 12px; padding: 10px 12px; min-height: 48px;
+}
+.checker-form select:focus, .checker-form input:focus, #food-search:focus { border-color: var(--brand); outline: none; }
+.age-row { display: flex; gap: 8px; }
+.age-row input { flex: 1 1 40%; }
+.age-row select { flex: 1 1 60%; }
+.checker-result { margin-top: 14px; border-radius: 12px; padding: 14px; border: 1px solid var(--line); }
+.checker-result:empty { display: none; }
+.checker-result .verdict-word { font-size: 1.7rem; }
+.checker-result p { margin: 4px 0; }
+
+/* lists and hubs */
+.cat-grid { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.cat-grid a { display: block; background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 12px; font-weight: 700; text-decoration: none; color: var(--ink); }
+.cat-grid a:hover { border-color: var(--brand); }
+.food-list { list-style: none; padding: 0; columns: 2 220px; column-gap: 24px; }
+.food-list li { break-inside: avoid; padding: 3px 0; }
+.food-list .hint { color: var(--muted); font-size: .85rem; }
+.search-label { display: block; font-weight: 700; margin-bottom: 4px; }
+#food-search { margin-bottom: 10px; }
+
+.related ul, .sources ul { padding-left: 1.2em; }
+.sources { font-size: .9rem; color: var(--muted); }
+.bridge {
+  margin: 28px 0 0; padding: 14px 16px; border-radius: 12px; background: var(--mint); font-weight: 600;
+}
+.disclaimer { margin-top: 24px; font-size: .9rem; color: var(--muted); border-left: 4px solid var(--line); padding-left: 12px; }
+
+/* footer */
+.site-footer { border-top: 1px solid var(--line); background: var(--paper); padding: 18px 0 26px; font-size: .9rem; }
+.site-footer .cats a { color: var(--muted); }
