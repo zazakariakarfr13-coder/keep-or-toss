@@ -26,6 +26,15 @@ class PinTests(unittest.TestCase):
             self.assertNotEqual(p.path, "", p.slug)
             self.assertIn(p.path, pages, p.slug)
 
+    def test_page_art_is_transparent_and_calm(self):
+        for slug in make_pins.PAGE_ART:
+            svg = make_pins.page_svg(slug)
+            self.assertTrue(svg.startswith("<svg"))
+            self.assertIn('class="page-art"', svg)
+            self.assertIn("prefers-reduced-motion: no-preference", svg)
+            self.assertNotIn("<rect width=\"1000\"", svg)   # no full background block
+            self.assertIn("stk", svg)                          # stickers
+
     def test_every_pin_has_art_and_copy(self):
         for p in make_pins.PINS:
             self.assertIn(p.slug, make_pins.ARTS)

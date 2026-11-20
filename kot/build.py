@@ -52,7 +52,9 @@ def build(out_dir: Path, foods=None, leftout=None, guides=None, quick=None) -> l
     shutil.copytree(STATIC, out_dir / "static")
 
     share = {p.stem for p in (STATIC / "img" / "share").glob("*.png")} if (STATIC / "img" / "share").is_dir() else set()
-    ctx = render.make_ctx(foods, leftout, guides, share, quick)
+    art_dir = STATIC / "art"
+    art = {f.stem: f.read_text(encoding="utf-8") for f in art_dir.glob("*.svg")} if art_dir.is_dir() else {}
+    ctx = render.make_ctx(foods, leftout, guides, share, quick, art)
 
     pages: dict[str, str] = {"": render.render_home(ctx)}
     for f in foods:

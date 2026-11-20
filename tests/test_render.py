@@ -146,6 +146,19 @@ class OtherPageTests(unittest.TestCase):
         self.assertTrue(all(a.attrs.get("data-food") for a in chips))
         self.assertTrue(all(a.attrs.get("href", "").startswith("?food=") for a in chips))
 
+    def test_page_art_sits_after_the_answer(self):
+        ctx = make_ctx([FOOD], [LO], [GUIDE], quick=[KETCHUP],
+                       art={"cooked-rice": '<svg class="page-art"></svg>', "rice-left-out-overnight": '<svg class="page-art"></svg>'})
+        for html in (render_food(FOOD, ctx), render_leftout(LO, ctx)):
+            root = parse(html)
+            self.assertIn("answer", first_after_h1(root).classes)
+            figs = [n for n in root.iter() if n.tag == "figure" and "page-art-fig" in n.classes]
+            self.assertEqual(len(figs), 1)
+            self.assertEqual(figs[0].attrs.get("aria-hidden"), "true")
+
+    def test_no_page_art_without_a_drawing(self):
+        self.assertNotIn("page-art-fig", render_food(FOOD, CTX))
+
     def test_escapes_data(self):
         html = render_food(make_food(why="<script>bad()</script>"), CTX)
         self.assertNotIn("<script>bad()", html)

@@ -1,0 +1,26 @@
+<svg class="page-art" viewBox="80 130 860 650" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><style>@media (prefers-reduced-motion: no-preference){
+.breathe{transform-box:fill-box;transform-origin:50% 100%;animation:breathe 3.2s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:scale(1,1)}50%{transform:scale(1.025,.975)}}
+.z1,.z2{animation:float 3.2s ease-in infinite}.z2{animation-delay:1.6s}
+@keyframes float{0%{transform:translate(0,30px);opacity:0}20%{opacity:1}100%{transform:translate(-50px,-110px);opacity:0}}
+.crack{animation:crack 1.1s cubic-bezier(.3,1.5,.5,1) .3s both}
+@keyframes crack{from{transform:translate(-70px,10px) rotate(-6deg)}to{transform:none}}
+.lens{animation:lens 1.3s cubic-bezier(.4,0,.2,1) .8s both}
+@keyframes lens{from{transform:translate(-430px,170px);opacity:0}25%{opacity:1}to{transform:none;opacity:1}}
+.blink{transform-box:fill-box;transform-origin:center;animation:blink 4s 1.4s infinite}
+@keyframes blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+.stk{transform-box:fill-box;transform-origin:center;animation:drift 8s ease-in-out infinite}
+.stk2{animation-duration:10s;animation-delay:-3s}
+@keyframes drift{0%,100%{transform:translate(0,0) rotate(0deg)}50%{transform:translate(-6px,-12px) rotate(-4deg)}}
+}</style><defs>
+<pattern id="hatch" width="11" height="11" patternUnits="userSpaceOnUse" patternTransform="rotate(38)">
+  <line x1="0" y1="0" x2="0" y2="11" stroke="#1d1a2f" stroke-width="2.6" opacity=".5"/></pattern>
+<pattern id="dots" width="13" height="13" patternUnits="userSpaceOnUse">
+  <circle cx="6.5" cy="6.5" r="2.4" fill="#1d1a2f" opacity=".32"/></pattern>
+<filter id="rough"><feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="2" seed="7"/>
+  <feDisplacementMap in="SourceGraphic" scale="6"/></filter>
+<filter id="riso" x="-15%" y="-15%" width="140%" height="140%">
+  <feOffset in="SourceAlpha" dx="13" dy="13" result="o"/><feFlood style="flood-color:var(--art-shadow)"/>
+  <feComposite in2="o" operator="in" result="s"/>
+  <feMerge><feMergeNode in="s"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+</defs><g class="stk stk1"><path d="M740 170 h120 a26 26 0 0 1 26 26 v60 a26 26 0 0 1 -26 26 h-70 l-30 28 v-28 h-20 a26 26 0 0 1 -26 -26 v-60 a26 26 0 0 1 26 -26Z" fill="#fffaf0" stroke="#1d1a2f" stroke-width="5" stroke-linejoin="round"/><text x="800" y="252" font-family="Anton, Impact, sans-serif" font-size="74" text-anchor="middle" fill="#1d1a2f">?</text></g><g class="stk stk2"><path d="M150 196 Q156.8 223.2 184 230 Q156.8 236.8 150 264 Q143.2 236.8 116 230 Q143.2 223.2 150 196Z" fill="#f3b33d" stroke="#1d1a2f" stroke-width="5" stroke-linejoin="round"/><path d="M205 164 Q208.2 176.8 221 180 Q208.2 183.2 205 196 Q201.8 183.2 189 180 Q201.8 176.8 205 164Z" fill="#f3b33d" stroke="#1d1a2f" stroke-width="5" stroke-linejoin="round"/></g><g filter="url(#rough)"><g filter="url(#riso)"><path d="M480 200 A260 260 0 0 0 480 720 L520 640 L460 560 L530 470 L460 380 L520 290Z" fill="#c8453b" stroke="#1d1a2f" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/><circle cx="330" cy="330" r="7" fill="#f2a59a"/><circle cx="390" cy="470" r="7" fill="#f2a59a"/><circle cx="300" cy="560" r="7" fill="#f2a59a"/><circle cx="420" cy="620" r="7" fill="#f2a59a"/><circle cx="350" cy="420" r="7" fill="#f2a59a"/><g class="crack"><g transform="translate(70 -10) rotate(8 520 460)"><path d="M520 200 A260 260 0 0 1 520 720 L560 640 L500 560 L570 470 L500 380 L560 290Z" fill="#c8453b" stroke="#1d1a2f" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/><path d="M560 290 L500 380 L570 470 L500 560 L560 640 L520 720 Q660 600 650 460 Q660 330 520 200Z" fill="#8f8a86" stroke="#1d1a2f" stroke-width="4"/><path d="M560 290 L500 380 L570 470 L500 560 L560 640 L520 720 Q660 600 650 460 Q660 330 520 200Z" fill="url(#dots)"/></g></g><g class="blink"><circle cx="324.3" cy="440" r="18.427500000000002" fill="#fff" stroke="#1d1a2f" stroke-width="5.25"/><circle cx="324.3" cy="443.15" r="8.19" fill="#1d1a2f"/><circle cx="395.7" cy="440" r="18.427500000000002" fill="#fff" stroke="#1d1a2f" stroke-width="5.25"/><circle cx="395.7" cy="443.15" r="8.19" fill="#1d1a2f"/><ellipse cx="360" cy="484.1" rx="12.600000000000001" ry="16.8" fill="#1d1a2f"/></g></g></g><g class="lens"><g filter="url(#riso)"><circle cx="690" cy="430" r="120" fill="#ffffff" fill-opacity=".22" stroke="#1d1a2f" stroke-width="16"/><path d="M775 520 L880 640" stroke="#1d1a2f" stroke-width="34" stroke-linecap="round"/></g></g></svg>

@@ -80,7 +80,7 @@ def span_text(s: Span | None) -> str:
     return f"{_num(s.min)}–{_num(s.max)} {unit}"
 
 
-def make_ctx(foods, leftout, guides, share_images=frozenset(), quick=()) -> dict:
+def make_ctx(foods, leftout, guides, share_images=frozenset(), quick=(), art=None) -> dict:
     sources = {}
     for item in [*foods, *leftout, *guides]:
         for s in item.sources:
@@ -92,7 +92,14 @@ def make_ctx(foods, leftout, guides, share_images=frozenset(), quick=()) -> dict
         "all_sources": sorted(sources.values(), key=lambda s: (s.publisher, s.title)),
         "share_images": set(share_images),
         "quick_by_slug": {q.slug: q for q in quick},
+        "art": dict(art or {}),
     }
+
+
+def _page_art(slug: str, ctx: dict) -> str:
+    """Decorative animated drawing for a page, if one exists (trusted SVG made by scripts/make_pins.py)."""
+    svg = ctx.get("art", {}).get(slug)
+    return f'<figure class="page-art-fig" aria-hidden="true">{svg}</figure>' if svg else ""
 
 
 def _path_of(slug: str, ctx: dict) -> tuple[str, str]:
@@ -228,6 +235,7 @@ def render_food(food: Food, ctx: dict) -> str:
         f"<h1>{escape(food.question)}</h1>",
         answer,
         f'<p class="why">{expand(food.why)}</p>',
+        _page_art(food.slug, ctx),
         f'<p class="cta"><a class="button" href="{rel(path, "")}?food={food.slug}#check">Check my {escape(food.name.lower())} →</a></p>',
         f"<section><h2>{q_bad}</h2>{_list(food.spoiled_signs)}</section>",
         f"<section><h2>{q_store}</h2>{_list(food.how_to_store)}</section>",
@@ -261,6 +269,7 @@ def render_leftout(lo: LeftOut, ctx: dict) -> str:
         f"<h1>{escape(lo.question)}</h1>",
         f'<section class="answer verdict verdict-{cls}" aria-label="Verdict"><p class="verdict-word">{word}</p>'
         f'<p class="verdict-line">{expand(lo.verdict_line)}</p></section>',
+        _page_art(lo.slug, ctx),
         f"<section><h2>Why is it risky?</h2><p>{expand(lo.risk)}</p></section>",
         f"<section><h2>What should you do next time?</h2>{_list(lo.next_time)}</section>",
         f'<p class="cta"><a class="button" href="{rel(path, url_for("food", food.slug))}">How long does {escape(food.name.lower())} last? →</a></p>',

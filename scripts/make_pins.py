@@ -61,7 +61,7 @@ def defs(shadow: str) -> str:
 <filter id="rough"><feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="2" seed="7"/>
   <feDisplacementMap in="SourceGraphic" scale="6"/></filter>
 <filter id="riso" x="-15%" y="-15%" width="140%" height="140%">
-  <feOffset in="SourceAlpha" dx="13" dy="13" result="o"/><feFlood flood-color="{shadow}"/>
+  <feOffset in="SourceAlpha" dx="13" dy="13" result="o"/><feFlood style="flood-color:{shadow}"/>
   <feComposite in2="o" operator="in" result="s"/>
   <feMerge><feMergeNode in="s"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
 </defs>"""
@@ -129,15 +129,18 @@ def grains(x0, x1, base, peak, n, seed):
     return "".join(out)
 
 
-def art(shadow: str, body: str, backdrop: str = "") -> str:
+def art(shadow: str, body: str, backdrop: str = "", overlay: str = "") -> str:
+    """`overlay` is drawn after the filtered art: use it for parts that move a long way on live pages,
+    because browsers do not re-measure a filter's area while its contents animate."""
     return (f'<svg viewBox="0 0 1000 800" width="1000" height="800" xmlns="http://www.w3.org/2000/svg">{defs(shadow)}'
-            f'{backdrop}<g filter="url(#rough)"><g filter="url(#riso)">{body}</g></g></svg>')
+            f'{backdrop}<g filter="url(#rough)"><g filter="url(#riso)">{body}</g></g>{overlay}</svg>')
 
 
 # ---------------------------------------------------------------- the ten pieces
-def rice_art(bg):
-    back = (f'<g class="bob">{moon(840, 120, 72, bg)}</g><g class="tw">' + star(130, 110, 22, CREAM) + star(220, 60, 12, CREAM)
+def rice_art(bg, page=False):
+    back = stickers_rice() if page else (f'<g class="bob">{moon(840, 120, 72, bg)}</g><g class="tw">' + star(130, 110, 22, CREAM) + star(220, 60, 12, CREAM)
             + star(720, 70, 14, CREAM) + star(900, 300, 16, CREAM) + '</g>')
+    zc = "var(--brand)" if page else CREAM
     body = (f'<g class="breathe"><path d="M240 440 Q500 160 760 440Z" fill="#fff" {S}/>'
             + grains(240, 760, 440, 160, 34, 11)
             + f'<path d="M190 440 L810 440 Q800 650 610 705 L390 705 Q200 650 190 440Z" fill="{CORAL}" {S}/>'
@@ -145,9 +148,9 @@ def rice_art(bg):
             + f'<path d="M190 470 L810 470" stroke="{INK}" stroke-width="5" stroke-dasharray="2 22" stroke-linecap="round"/>'
             + f'<path d="M420 705 L580 705 L565 745 L435 745Z" fill="{CORAL}" {S}/>'
             + face(500, 560, "sleep", 1.25) + '</g>'
-            + f'<text class="z1" x="235" y="330" font-family="Anton" font-size="96" fill="{CREAM}">Z</text>'
-            + f'<text class="z2" x="170" y="245" font-family="Anton" font-size="62" fill="{CREAM}">z</text>')
-    return art("#0e1430", body, back)
+            + f'<text class="z1" x="235" y="330" font-family="Anton" font-size="96" style="fill:{zc}">Z</text>'
+            + f'<text class="z2" x="170" y="245" font-family="Anton" font-size="62" style="fill:{zc}">z</text>')
+    return art("var(--art-shadow)" if page else "#0e1430", body, back)
 
 
 def pizza_art(bg):
@@ -247,17 +250,17 @@ def deli_art(bg):
     return art("#18286b", body)
 
 
-def beef_art(bg):
+def beef_art(bg, page=False):
     left = f'<path d="M480 200 A260 260 0 0 0 480 720 L520 640 L460 560 L530 470 L460 380 L520 290Z" fill="#c8453b" {S}/>'
     right = (f'<g class="crack"><g transform="translate(70 -10) rotate(8 520 460)">'
              f'<path d="M520 200 A260 260 0 0 1 520 720 L560 640 L500 560 L570 470 L500 380 L560 290Z" fill="#c8453b" {S}/>'
              f'<path d="M560 290 L500 380 L570 470 L500 560 L560 640 L520 720 Q660 600 650 460 Q660 330 520 200Z" fill="#8f8a86" stroke="{INK}" stroke-width="4"/>'
              f'<path d="M560 290 L500 380 L570 470 L500 560 L560 640 L520 720 Q660 600 650 460 Q660 330 520 200Z" fill="url(#dots)"/></g></g>')
     dots = "".join(f'<circle cx="{x}" cy="{y}" r="7" fill="#f2a59a"/>' for x, y in [(330, 330), (390, 470), (300, 560), (420, 620), (350, 420)])
-    lens = (f'<g class="lens"><circle cx="690" cy="430" r="120" fill="#ffffff" fill-opacity=".22" stroke="{INK}" stroke-width="16"/>'
-            f'<path d="M775 520 L880 640" stroke="{INK}" stroke-width="34" stroke-linecap="round"/></g>')
-    body = left + dots + right + f'<g class="blink">{face(360, 440, "shock", 1.05)}</g>' + lens
-    return art("#e2b07a", body)
+    lens = (f'<g class="lens">{"<g filter=\"url(#riso)\">" if page else ""}<circle cx="690" cy="430" r="120" fill="#ffffff" fill-opacity=".22" stroke="{INK}" stroke-width="16"/>'
+            f'<path d="M775 520 L880 640" stroke="{INK}" stroke-width="34" stroke-linecap="round"/>{"</g>" if page else ""}</g>')
+    body = left + dots + right + f'<g class="blink">{face(360, 440, "shock", 1.05)}</g>' + ("" if page else lens)
+    return art("var(--art-shadow)" if page else "#e2b07a", body, stickers_beef() if page else "", lens if page else "")
 
 
 def hb_eggs_art(bg):
@@ -287,6 +290,61 @@ def dates_art(bg):
             + tag(470, 270, -7, MUSTARD, "BEST BEFORE", taste)
             + tag(530, 560, 6, "#ff8a7a", "USE BY", safety))
     return art("#8f2f4f", body)
+
+
+# ---------------------------------------------------------------- page versions (no frame, page colours)
+STK = f'fill="{PAPER}" stroke="{INK}" stroke-width="5" stroke-linejoin="round"'
+
+
+def crescent(x, y, r):
+    return f'<path d="M{x} {y-r} A{r} {r} 0 1 0 {x} {y+r} A{r*.38:.0f} {r} 0 1 1 {x} {y-r}Z" {STK}/>'
+
+
+def sparkle(x, y, r):
+    return (f'<path d="M{x} {y-r} Q{x+r*.2} {y-r*.2} {x+r} {y} Q{x+r*.2} {y+r*.2} {x} {y+r} '
+            f'Q{x-r*.2} {y+r*.2} {x-r} {y} Q{x-r*.2} {y-r*.2} {x} {y-r}Z" fill="{MUSTARD}" stroke="{INK}" stroke-width="5" stroke-linejoin="round"/>')
+
+
+def stickers_rice():
+    return (f'<g class="stk stk1"><g transform="rotate(-12 830 230)">{crescent(830, 230, 52)}</g></g>'
+            f'<g class="stk stk2">{sparkle(860, 560, 30)}{sparkle(812, 616, 15)}</g>')
+
+
+def stickers_beef():
+    bubble = (f'<path d="M740 170 h120 a26 26 0 0 1 26 26 v60 a26 26 0 0 1 -26 26 h-70 l-30 28 v-28 h-20 '
+              f'a26 26 0 0 1 -26 -26 v-60 a26 26 0 0 1 26 -26Z" {STK}/>'
+              f'<text x="800" y="252" font-family="Anton, Impact, sans-serif" font-size="74" text-anchor="middle" fill="{INK}">?</text>')
+    return f'<g class="stk stk1">{bubble}</g><g class="stk stk2">{sparkle(150, 230, 34)}{sparkle(205, 180, 16)}</g>'
+
+
+PAGE_ART = {  # page slug -> (drawing, crop box)
+    "rice-left-out-overnight": (lambda: rice_art("", page=True), "120 150 820 640"),
+    "ground-beef": (lambda: beef_art("", page=True), "80 130 860 650"),
+}
+
+PAGE_MOTION = """@media (prefers-reduced-motion: no-preference){
+.breathe{transform-box:fill-box;transform-origin:50% 100%;animation:breathe 3.2s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:scale(1,1)}50%{transform:scale(1.025,.975)}}
+.z1,.z2{animation:float 3.2s ease-in infinite}.z2{animation-delay:1.6s}
+@keyframes float{0%{transform:translate(0,30px);opacity:0}20%{opacity:1}100%{transform:translate(-50px,-110px);opacity:0}}
+.crack{animation:crack 1.1s cubic-bezier(.3,1.5,.5,1) .3s both}
+@keyframes crack{from{transform:translate(-70px,10px) rotate(-6deg)}to{transform:none}}
+.lens{animation:lens 1.3s cubic-bezier(.4,0,.2,1) .8s both}
+@keyframes lens{from{transform:translate(-430px,170px);opacity:0}25%{opacity:1}to{transform:none;opacity:1}}
+.blink{transform-box:fill-box;transform-origin:center;animation:blink 4s 1.4s infinite}
+@keyframes blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+.stk{transform-box:fill-box;transform-origin:center;animation:drift 8s ease-in-out infinite}
+.stk2{animation-duration:10s;animation-delay:-3s}
+@keyframes drift{0%,100%{transform:translate(0,0) rotate(0deg)}50%{transform:translate(-6px,-12px) rotate(-4deg)}}
+}"""
+
+
+def page_svg(slug: str) -> str:
+    """Standalone animated SVG for the site page: transparent, cropped, themed by page CSS variables."""
+    draw, box = PAGE_ART[slug]
+    inner = draw().split(">", 1)[1].rsplit("</svg>", 1)[0]   # drop the pin-sized <svg> wrapper
+    return (f'<svg class="page-art" viewBox="{box}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" '
+            f'focusable="false"><style>{PAGE_MOTION}</style>{inner}</svg>')
 
 
 PINS = [
@@ -416,7 +474,18 @@ def render(html_text: str, out_png: Path) -> None:
     shutil.rmtree(tmp, ignore_errors=True)
 
 
+def write_page_art() -> None:
+    art_dir = ROOT / "static" / "art"
+    art_dir.mkdir(parents=True, exist_ok=True)
+    for slug in PAGE_ART:
+        (art_dir / f"{slug}.svg").write_text(page_svg(slug), encoding="utf-8")
+        print(f"wrote static/art/{slug}.svg")
+
+
 def main(argv: list[str]) -> int:
+    write_page_art()
+    if argv[1:] == ["--page-art"]:
+        return 0
     OUT.mkdir(exist_ok=True)
     wanted = set(argv[1:])
     for p in PINS:
