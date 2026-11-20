@@ -60,6 +60,11 @@ def expand(text: str) -> str:
     return _TEMP.sub(lambda m: fmt_temp(int(m.group(1))), escape(text))
 
 
+def expand_plain(text: str) -> str:
+    """Expand {temp:N} markers without HTML escaping (for JSON data read as text)."""
+    return _TEMP.sub(lambda m: fmt_temp(int(m.group(1))), text)
+
+
 def _num(x: float) -> str:
     return str(int(x)) if float(x).is_integer() else str(x)
 
@@ -75,7 +80,7 @@ def span_text(s: Span | None) -> str:
     return f"{_num(s.min)}–{_num(s.max)} {unit}"
 
 
-def make_ctx(foods, leftout, guides, share_images=frozenset()) -> dict:
+def make_ctx(foods, leftout, guides, share_images=frozenset(), quick=()) -> dict:
     sources = {}
     for item in [*foods, *leftout, *guides]:
         for s in item.sources:
@@ -86,6 +91,7 @@ def make_ctx(foods, leftout, guides, share_images=frozenset()) -> dict:
         "guides_by_slug": {g.slug: g for g in guides},
         "all_sources": sorted(sources.values(), key=lambda s: (s.publisher, s.title)),
         "share_images": set(share_images),
+        "quick_by_slug": {q.slug: q for q in quick},
     }
 
 
@@ -308,12 +314,29 @@ def render_hub(category: str, foods: list[Food], ctx: dict) -> str:
                  crumbs=[("Home", ""), (name, path)], image_slug=f"category-{category}")
 
 
+def _hint(storage) -> str:
+    """Short time hint for search results: the first place with a time."""
+    for place in ("fridge", "pantry", "freezer", "counter"):
+        span = storage.get(place)
+        if span is not None:
+            return f"{place}: {span_text(span)}"
+    return ""
+
+
 def render_home(ctx: dict) -> str:
     foods = sorted(ctx["foods_by_slug"].values(), key=lambda f: f.name)
+    everything = sorted([*foods, *ctx.get("quick_by_slug", {}).values()], key=lambda f: f.name.lower())
     used = [c for c in config.CATEGORIES if any(f.category == c for f in foods)]
     cats = "".join(f'<li><a href="{url_for("category", c)}">{escape(config.CATEGORIES[c])}</a></li>' for c in used)
-    all_foods = "".join(f'<li data-name="{escape(f.name.lower())}"><a href="{url_for("food", f.slug)}">{escape(f.name)}</a></li>'
-                        for f in foods)
+    items = []
+    for f in everything:
+        guide = (f' · <a class="guide-link" href="{url_for("food", f.slug)}">full guide</a>'
+                 if f.slug in ctx["foods_by_slug"] else "")
+        items.append(f'<li data-name="{escape(f.name.lower())}"><a href="?food={f.slug}#check" data-food="{f.slug}">'
+                     f'{escape(f.name)}</a> <span class="hint">{escape(_hint(f.storage))}</span>{guide}</li>')
+    names = {f.slug: f.name for f in everything}
+    chips = "".join(f'<li><a class="chip" href="?food={slug}#check" data-food="{slug}">{escape(names[slug])}</a></li>'
+                    for slug in config.POPULAR if slug in names)
     guides = "".join(f'<li><a href="{url_for("guide", g.slug)}">{escape(g.title)}</a></li>'
                      for g in ctx["guides_by_slug"].values())
     los = "".join(f'<li><a href="{url_for("leftout", lo.slug)}">{escape(lo.question)}</a></li>'
@@ -324,18 +347,22 @@ def render_home(ctx: dict) -> str:
         '<p class="lead">Pick a food, where you keep it, and when you opened or cooked it. '
         'Get a clear answer: keep it, use it today, or toss it.</p>'
         '<div class="checker-app" data-checker></div>'
-        '<noscript><p>The checker needs JavaScript. Every food page below has the same answer in plain text.</p></noscript>'
+        '<noscript><p>The checker needs JavaScript. The food list below has the same times in plain text.</p></noscript>'
         "</section>",
-        f'<section><h2>Browse by type</h2><ul class="cat-grid">{cats}</ul></section>',
+        f'<section class="finder"><h2>Find a food</h2>'
+        f'<label class="search-label" for="food-search">Search {len(everything)} foods</label>'
+        '<input id="food-search" type="search" placeholder="e.g. rice, salmon, ketchup" autocomplete="off">'
+        f'<p class="chips-label">Popular:</p><ul class="chips">{chips}</ul>'
+        f'<p class="search-count" id="search-count" aria-live="polite"></p>'
+        f'<ul class="food-list" id="all-foods">{"".join(items)}</ul></section>',
+        f'<section><h2>Full guides by type</h2><ul class="cat-grid">{cats}</ul></section>',
         (f"<section><h2>Left out too long?</h2><ul>{los}</ul></section>" if los else ""),
         (f"<section><h2>Guides</h2><ul>{guides}</ul></section>" if guides else ""),
-        '<section><h2>Every food</h2><label class="search-label" for="food-search">Find a food</label>'
-        '<input id="food-search" type="search" placeholder="e.g. rice, eggs, salsa" autocomplete="off">'
-        f'<ul class="food-list" id="all-foods">{all_foods}</ul></section>',
         _disclaimer(),
         '<script type="module" src="static/checker.js"></script>',
     ])
-    desc = "Is your food still safe to eat? Clear keep-or-toss answers for the fridge, freezer and pantry, from official food safety sources."
+    desc = (f"Is your food still safe to eat? Keep-or-toss answers for {len(everything)} foods in the fridge, "
+            "freezer and pantry, from official food safety sources.")
     site = {"@context": "https://schema.org", "@type": "WebSite", "name": config.SITE_NAME, "url": config.BASE_URL}
     return shell("", "How long does food last?", desc, body, ctx, jsonld=[site], image_slug="default")
 

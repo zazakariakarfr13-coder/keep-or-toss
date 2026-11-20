@@ -7,7 +7,7 @@ from typing import Literal
 
 from kot import config
 
-_UNIT_HOURS = {"hours": 1, "days": 24, "weeks": 168, "months": 720}
+_UNIT_HOURS = {"hours": 1, "days": 24, "weeks": 168, "months": 720, "years": 8760}
 _SLUG = re.compile(r"^[a-z0-9-]+$")
 
 
@@ -15,7 +15,7 @@ _SLUG = re.compile(r"^[a-z0-9-]+$")
 class Span:
     min: float
     max: float
-    unit: Literal["hours", "days", "weeks", "months"]
+    unit: Literal["hours", "days", "weeks", "months", "years"]
     note: str = ""
 
     def __post_init__(self):
@@ -53,6 +53,16 @@ class Food:
 
 
 @dataclass
+class QuickFood:
+    """A food with official storage times but no page of its own (search + checker only)."""
+    slug: str
+    name: str
+    category: str
+    storage: dict[str, Span | None]
+    source: str
+
+
+@dataclass
 class LeftOut:
     slug: str
     food: str
@@ -85,9 +95,11 @@ class Guide:
     related: list[str]
 
 
-def validate_all(foods: list[Food], leftout: list[LeftOut], guides: list[Guide]) -> None:
+def validate_all(foods: list[Food], leftout: list[LeftOut], guides: list[Guide],
+                 quick: list[QuickFood] | None = None) -> None:
     """Raise ValueError naming the slug and problem for the first issue found."""
     seen: set[str] = set()
+    quick = quick or []
     for item in [*foods, *leftout, *guides]:
         if not _SLUG.match(item.slug):
             raise ValueError(f"{item.slug!r}: slug must be lowercase letters, digits and dashes")
@@ -114,6 +126,19 @@ def validate_all(foods: list[Food], leftout: list[LeftOut], guides: list[Guide])
     for g in guides:
         if g.kind not in ("country", "emergency", "bridge"):
             raise ValueError(f"{g.slug}: unknown kind {g.kind!r}")
+    for q in quick:
+        if not _SLUG.match(q.slug):
+            raise ValueError(f"{q.slug!r}: slug must be lowercase letters, digits and dashes")
+        if q.slug in seen:
+            raise ValueError(f"{q.slug}: duplicate slug (quick food)")
+        seen.add(q.slug)
+        if q.category not in config.CATEGORIES:
+            raise ValueError(f"{q.slug}: unknown category {q.category!r}")
+        if not q.storage:
+            raise ValueError(f"{q.slug}: needs at least one storage place")
+        for place in q.storage:
+            if place not in config.PLACES:
+                raise ValueError(f"{q.slug}: unknown place {place!r}")
     for item in [*foods, *leftout, *guides]:
         for r in item.related:
             if r not in seen:

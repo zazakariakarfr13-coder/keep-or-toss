@@ -119,6 +119,20 @@ li { margin: 4px 0; }
 .checker-result .verdict-word { font-size: 1.7rem; }
 .checker-result p { margin: 4px 0; }
 
+/* finder: search, examples, results */
+.finder .chips-label { margin: 10px 0 6px; font-weight: 700; font-size: .9rem; color: var(--muted); }
+.chips { list-style: none; padding: 0; margin: 0 0 8px; display: flex; flex-wrap: wrap; gap: 8px; }
+.chips li { margin: 0; }
+.chip {
+  display: inline-block; padding: 7px 13px; border-radius: 999px; background: var(--paper);
+  border: 1.5px solid var(--line); color: var(--ink); text-decoration: none; font-weight: 600; font-size: .92rem;
+}
+.chip:hover, .chip:focus-visible { border-color: var(--brand); background: var(--mint); }
+.finder.searching .chips, .finder.searching .chips-label { display: none; }
+.search-count { font-size: .9rem; color: var(--muted); margin: 4px 0; min-height: 1.2em; }
+.food-list .guide-link { font-size: .85rem; font-weight: 700; }
+.checker-result .note, .checker-result .source { font-size: .9rem; color: var(--muted); }
+
 /* lists and hubs */
 .cat-grid { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
 .cat-grid a { display: block; background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 12px; font-weight: 700; text-decoration: none; color: var(--ink); }

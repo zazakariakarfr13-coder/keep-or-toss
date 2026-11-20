@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { placesFor, verdict } from "../../static/checker.js";
+import { matchFoods, placesFor, spanText, verdict } from "../../static/checker.js";
 
 const rice = {
   slug: "cooked-rice", name: "Cooked rice", category: "leftovers",
@@ -50,4 +50,23 @@ test("places only lists stored places", () => {
   const v = verdict(chicken, "counter", 1);
   assert.equal(v.verdict, "toss");
   assert.match(v.reason, /Not recommended/);
+});
+
+test("spanText handles years and singular units", () => {
+  assert.equal(spanText({ min: 1, max: 2, unit: "years" }), "1–2 years");
+  assert.equal(spanText({ min: 1, max: 1, unit: "years" }), "1 year");
+  assert.equal(spanText({ min: 6, max: 6, unit: "months" }), "6 months");
+});
+
+test("pantry with years works in verdict", () => {
+  const honey = { slug: "honey", name: "Honey", places: { pantry: { min: 2, max: 2, unit: "years", maxHours: 17520 } } };
+  assert.equal(verdict(honey, "pantry", 24 * 30).verdict, "keep");
+});
+
+test("matchFoods ranks words that start with the query first, and limits results", () => {
+  const names = ["Pineapple", "Apples", "Apple cider (fresh)", "Grapes", "Applesauce (jar)"];
+  assert.deepEqual(matchFoods(names, "apple", 3), ["Apple cider (fresh)", "Apples", "Applesauce (jar)"]);
+  assert.deepEqual(matchFoods(names, "", 3), []);
+  assert.deepEqual(matchFoods(names, "zzz", 3), []);
+  assert.ok(matchFoods(names, "apple", 10).includes("Pineapple"));
 });

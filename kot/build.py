@@ -20,27 +20,30 @@ def _write(out_dir: Path, path: str, html: str) -> None:
     target.write_text(html, encoding="utf-8")
 
 
-def checker_data(foods) -> list[dict]:
+def checker_data(foods, quick=()) -> list[dict]:
+    pages = {f.slug for f in foods}
     out = []
-    for f in sorted(foods, key=lambda f: f.name):
+    for f in sorted([*foods, *quick], key=lambda f: f.name.lower()):
         places = {}
         for place, s in f.storage.items():
             places[place] = None if s is None else {
                 "min": s.min, "max": s.max, "unit": s.unit, "maxHours": s.max_hours(),
                 "basis": "quality" if place == "freezer" else "safety",
-                "note": render.expand(s.note) if s.note else "",
+                "note": render.expand_plain(s.note) if s.note else "",
             }
-        out.append({"slug": f.slug, "name": f.name, "category": f.category, "places": places})
+        out.append({"slug": f.slug, "name": f.name, "category": f.category, "places": places,
+                    "page": f.slug in pages,
+                    "source": "USDA and FDA sources listed on its page" if f.slug in pages else f.source})
     return out
 
 
-def build(out_dir: Path, foods=None, leftout=None, guides=None) -> list[str]:
-    if foods is None or leftout is None or guides is None:
+def build(out_dir: Path, foods=None, leftout=None, guides=None, quick=None) -> list[str]:
+    if foods is None and leftout is None and guides is None:
         import data
-        foods = data.ALL_FOODS if foods is None else foods
-        leftout = data.ALL_LEFTOUT if leftout is None else leftout
-        guides = data.ALL_GUIDES if guides is None else guides
-    validate_all(foods, leftout, guides)
+        foods, leftout, guides = data.ALL_FOODS, data.ALL_LEFTOUT, data.ALL_GUIDES
+        quick = data.ALL_QUICK if quick is None else quick
+    foods, leftout, guides, quick = foods or [], leftout or [], guides or [], quick or []
+    validate_all(foods, leftout, guides, quick)
 
     out_dir = Path(out_dir)
     if out_dir.exists():
@@ -49,7 +52,7 @@ def build(out_dir: Path, foods=None, leftout=None, guides=None) -> list[str]:
     shutil.copytree(STATIC, out_dir / "static")
 
     share = {p.stem for p in (STATIC / "img" / "share").glob("*.png")} if (STATIC / "img" / "share").is_dir() else set()
-    ctx = render.make_ctx(foods, leftout, guides, share)
+    ctx = render.make_ctx(foods, leftout, guides, share, quick)
 
     pages: dict[str, str] = {"": render.render_home(ctx)}
     for f in foods:
@@ -74,7 +77,7 @@ def build(out_dir: Path, foods=None, leftout=None, guides=None) -> list[str]:
     (out_dir / "sitemap.xml").write_text(
         '<?xml version="1.0" encoding="UTF-8"?>\n'
         f'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{urls}</urlset>\n', encoding="utf-8")
-    (out_dir / "checker.json").write_text(json.dumps(checker_data(foods), ensure_ascii=False), encoding="utf-8")
+    (out_dir / "checker.json").write_text(json.dumps(checker_data(foods, quick), ensure_ascii=False), encoding="utf-8")
     return list(pages)
 
 

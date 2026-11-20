@@ -1,6 +1,22 @@
 // "Is it still OK?" checker. Pure logic first (tested with node --test), DOM wiring after.
 
-const UNIT_HOURS = { hours: 1, days: 24, weeks: 168, months: 720 };
+const UNIT_HOURS = { hours: 1, days: 24, weeks: 168, months: 720, years: 8760 };
+
+export function matchFoods(names, query, limit) {
+  const q = query.trim().toLowerCase();
+  if (!q) return [];
+  const scored = [];
+  for (const name of names) {
+    const n = name.toLowerCase();
+    let score = -1;
+    if (n.startsWith(q)) score = 0;
+    else if (n.split(/[^a-z0-9]+/).some((w) => w.startsWith(q))) score = 1;
+    else if (n.includes(q)) score = 2;
+    if (score >= 0) scored.push([score, name]);
+  }
+  scored.sort((a, b) => a[0] - b[0] || a[1].localeCompare(b[1]));
+  return scored.slice(0, limit).map((x) => x[1]);
+}
 const PLACE_LABEL = { fridge: "fridge", freezer: "freezer", pantry: "pantry", counter: "counter" };
 
 export function placesFor(food) {
@@ -107,30 +123,66 @@ export async function initChecker(root) {
     if (!v.verdict) { out.append(el("p", {}, v.reason)); return; }
     const [cls, word] = WORD[v.verdict];
     out.className = `checker-result verdict verdict-${cls}`;
-    const link = el("a", { href: `food/${f.slug}/` }, `Everything about ${f.name.toLowerCase()} →`);
-    out.append(el("p", { class: "verdict-word" }, word), el("p", {}, v.reason), el("p"));
-    out.lastChild.append(link);
+    out.append(el("p", { class: "verdict-word" }, word), el("p", {}, v.reason));
+    const note = f.places[placeSel.value]?.note;
+    if (note) out.append(el("p", { class: "note" }, note));
+    if (f.page) {
+      out.append(el("p"));
+      out.lastChild.append(el("a", { href: `food/${f.slug}/` }, `Everything about ${f.name.toLowerCase()} →`));
+    } else {
+      out.append(el("p", { class: "source" }, `Source: ${f.source}.`));
+    }
   };
   foodSel.addEventListener("change", () => { fillPlaces(); show(); });
   for (const c of [placeSel, ageNum, ageUnit]) c.addEventListener("input", show);
   form.addEventListener("submit", (e) => { e.preventDefault(); show(); });
 
+  const select = (slug) => {
+    if (!bySlug[slug]) return;
+    foodSel.value = slug;
+    fillPlaces();
+    show();
+    history.replaceState(null, "", `?food=${slug}#check`);
+    root.closest("section").scrollIntoView({ behavior: "smooth", block: "start" });
+    (ageNum.value === "" ? ageNum : placeSel).focus({ preventScroll: true });
+  };
   const pre = new URLSearchParams(location.search).get("food");
   if (pre && bySlug[pre]) { foodSel.value = pre; fillPlaces(); }
+  return { select };
 }
 
-function initSearch() {
+function initSearch(api) {
   const input = document.getElementById("food-search");
   const list = document.getElementById("all-foods");
+  const count = document.getElementById("search-count");
   if (!input || !list) return;
-  input.addEventListener("input", () => {
-    const q = input.value.trim().toLowerCase();
-    for (const li of list.children) li.hidden = q !== "" && !li.dataset.name.includes(q);
-  });
+  const byName = new Map([...list.children].map((li) => [li.querySelector("a").textContent, li]));
+  const names = [...byName.keys()];
+  const render = () => {
+    const hits = matchFoods(names, input.value, 40);
+    input.closest(".finder")?.classList.toggle("searching", input.value.trim() !== "");
+    for (const li of list.children) li.hidden = true;
+    for (const n of hits) { const li = byName.get(n); li.hidden = false; list.append(li); }
+    if (count) {
+      count.textContent = !input.value.trim() ? ""
+        : hits.length ? `${hits.length === 40 ? "Top 40" : hits.length} match${hits.length === 1 ? "" : "es"}. Tap a food to check it.`
+        : "No match. Try a simpler word, like “chicken” or “cheese”.";
+    }
+  };
+  render();
+  input.addEventListener("input", render);
+  if (api) {
+    document.addEventListener("click", (e) => {
+      const a = e.target.closest("a[data-food]");
+      if (!a) return;
+      e.preventDefault();
+      api.select(a.dataset.food);
+    });
+  }
 }
 
 if (typeof document !== "undefined") {
   const root = document.querySelector("[data-checker]");
-  if (root) initChecker(root);
-  initSearch();
+  if (root) initChecker(root).then(initSearch);
+  else initSearch(null);
 }

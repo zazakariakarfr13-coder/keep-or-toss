@@ -1,6 +1,6 @@
 import unittest
 
-from kot.schema import Food, LeftOut, Source, Span, validate_all
+from kot.schema import Food, LeftOut, QuickFood, Source, Span, validate_all
 
 
 def make_food(**over):
@@ -82,6 +82,25 @@ class SchemaTests(unittest.TestCase):
     def test_unknown_place_fails(self):
         with self.assertRaisesRegex(ValueError, "garage"):
             validate_all([make_food(storage={"garage": Span(1, 2, "days")})], [], [])
+
+    def test_years_unit(self):
+        self.assertEqual(Span(1, 2, "years").max_hours(), 2 * 8760)
+
+    def test_quick_food_valid(self):
+        q = QuickFood(slug="ketchup", name="Ketchup", category="condiments",
+                      storage={"fridge": Span(6, 6, "months", "After opening.")}, source="FoodKeeper")
+        validate_all([make_food()], [], [], [q])
+
+    def test_quick_food_slug_clash_with_page_fails(self):
+        q = QuickFood(slug="cooked-rice", name="Rice", category="leftovers",
+                      storage={"fridge": Span(3, 4, "days")}, source="FoodKeeper")
+        with self.assertRaisesRegex(ValueError, "cooked-rice"):
+            validate_all([make_food()], [], [], [q])
+
+    def test_quick_food_bad_category_fails(self):
+        q = QuickFood(slug="x", name="X", category="snacks", storage={"fridge": Span(1, 2, "days")}, source="FoodKeeper")
+        with self.assertRaisesRegex(ValueError, "snacks"):
+            validate_all([], [], [], [q])
 
     def test_max_hours(self):
         self.assertEqual(Span(3, 4, "days").max_hours(), 96)

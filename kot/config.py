@@ -19,6 +19,13 @@ CATEGORIES = {
 
 PLACES = ("fridge", "freezer", "pantry", "counter")
 
+# Clickable examples under the home search box (slugs of pages or quick foods)
+POPULAR = [
+    "cooked-rice", "eggs", "pizza", "raw-chicken", "ground-beef", "deli-meat", "butter", "avocado",
+    "strawberries", "bananas", "bacon-raw", "salmon-raw", "cheddar-cheese", "yogurt", "hummus-store-bought",
+    "guacamole", "ketchup", "mayonnaise", "sandwich-bread-store-bought", "soup",
+]
+
 DISCLAIMER = "General guidance, not a guarantee. When in doubt, throw it out."
 
 ANALYTICS_TOKEN: str | None = None  # Cloudflare Web Analytics beacon token

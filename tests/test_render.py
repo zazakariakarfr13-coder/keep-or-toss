@@ -4,7 +4,7 @@ from unittest import mock
 from kot import config
 from kot.render import (fmt_temp, make_ctx, rel, render_404, render_food, render_guide, render_home,
                         render_hub, render_leftout, render_static, url_for)
-from kot.schema import Guide, Section, Source, Span
+from kot.schema import Guide, QuickFood, Section, Source, Span
 from kot.htmltree import first_after_h1, parse
 from tests.test_schema import make_food, make_leftout
 
@@ -23,7 +23,8 @@ FOOD = make_food(storage={"fridge": Span(3, 4, "days", "Keep at {temp:40} or col
                           "freezer": Span(1, 2, "months"), "counter": None})
 LO = make_leftout()
 GUIDE = make_guide()
-CTX = make_ctx([FOOD], [LO], [GUIDE])
+KETCHUP = QuickFood("ketchup", "Ketchup", "condiments", {"fridge": Span(6, 6, "months", "After opening.")}, "USDA FoodKeeper")
+CTX = make_ctx([FOOD], [LO], [GUIDE], quick=[KETCHUP])
 
 
 class UrlTests(unittest.TestCase):
@@ -131,6 +132,19 @@ class OtherPageTests(unittest.TestCase):
         html = render_food(FOOD, CTX)
         self.assertIn('href="../../category/leftovers/"', html)
         self.assertNotIn("category/dairy/", html)
+
+    def test_home_search_lists_quick_and_page_foods(self):
+        html = render_home(CTX)
+        self.assertIn('data-food="ketchup"', html)
+        self.assertIn("fridge: 6 months", html)
+        self.assertIn('href="food/cooked-rice/"', html)
+
+    def test_home_has_clickable_examples(self):
+        root = parse(render_home(CTX))
+        chips = [a for a in root.find_all("a") if "chip" in a.classes]
+        self.assertTrue(chips)
+        self.assertTrue(all(a.attrs.get("data-food") for a in chips))
+        self.assertTrue(all(a.attrs.get("href", "").startswith("?food=") for a in chips))
 
     def test_escapes_data(self):
         html = render_food(make_food(why="<script>bad()</script>"), CTX)

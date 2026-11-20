@@ -9,3 +9,9 @@
 - Conservative rule applied: cooked rice uses FSIS 3-4 days rather than FoodKeeper's 4-6 days, and the page says so. Milk was postponed: FoodKeeper gives only "use-by date" and the chart has no milk row, so it gets a source first.
 - Wave 1: 10 foods (cooked rice, cooked chicken, leftover pizza, eggs, hard-boiled eggs, butter, raw chicken, ground beef, deli meat, avocado), 3 left-out pages (rice, pizza, cooked chicken) and the best-before bridge guide. The trap-guard caught 3 pages under 220 words; each got a real extra detail. Thresholds unchanged.
 - Site check: 0 problems. Highest pair similarity is below 0.10.
+
+## 2026-11-20 — 438 searchable foods
+- Owner approved wave 1 ("it looks good") and asked for ~300 foods in the search, plus clickable examples.
+- Owner chose: every food searchable with an instant answer, while full pages keep growing (so there is no mass of thin pages).
+- Added 428 quick-answer foods from the USDA FoodKeeper dataset (read in the browser; curated into plain names) in `data/quick.py`. They have no page of their own: they appear in the search and the checker, with "Source: USDA FoodKeeper and FSIS food safety guidance". Where FoodKeeper and the FSIS leftovers rule disagree (cooked pasta, quinoa, salads), the shorter time is used and noted. Conflicting or unclear rows are left out (canned tuna, tomatoes, prosciutto, string cheese, oat milk, which is not in FoodKeeper).
+- Home: "Find a food" search (ranked, top 40), 20 clickable example foods, and results that fill in the checker without a page reload.
