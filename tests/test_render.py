@@ -159,6 +159,42 @@ class OtherPageTests(unittest.TestCase):
     def test_no_page_art_without_a_drawing(self):
         self.assertNotIn("page-art-fig", render_food(FOOD, CTX))
 
+    def test_menu_on_every_page_lists_titles_and_subtitles(self):
+        root = parse(render_guide(GUIDE, CTX))
+        menus = [n for n in root.iter() if n.tag == "details" and "menu" in n.classes]
+        self.assertEqual(len(menus), 1)
+        menu = menus[0]
+        self.assertIn("Menu", menu.find_all("summary")[0].all_text())
+        text = menu.all_text()
+        for heading in ("Check a food", "Food guides", "Leftovers & cooked food", "Left out too long?", "Guides", "About"):
+            self.assertIn(heading, text)
+        hrefs = [a.attrs.get("href") for a in menu.find_all("a")]
+        for href in ("../../food/cooked-rice/", "../../left-out/rice-left-out-overnight/",
+                     "../../about/", "../../sources/", "../../#check"):
+            self.assertIn(href, hrefs)
+        current = [a for a in menu.find_all("a") if a.attrs.get("aria-current") == "page"]
+        self.assertEqual([a.attrs.get("href") for a in current], ["./"])
+
+    def test_menu_links_are_relative_from_home(self):
+        menu = [n for n in parse(render_home(CTX)).iter() if n.tag == "details" and "menu" in n.classes][0]
+        self.assertIn("food/cooked-rice/", [a.attrs.get("href") for a in menu.find_all("a")])
+
+    def test_home_search_covers_every_kind_of_page(self):
+        root = parse(render_home(CTX))
+        items = root.find_all("li")
+        kinds = {li.attrs.get("data-type") for li in items if li.attrs.get("data-type")}
+        self.assertTrue({"Food guide", "Quick answer", "Left out", "Guide", "Category", "Info"} <= kinds, kinds)
+        hrefs = [a.attrs.get("href") for a in root.find_all("a")]
+        self.assertIn("left-out/rice-left-out-overnight/", hrefs)
+        self.assertIn("guides/best-before-vs-use-by/", hrefs)
+
+    def test_home_search_comes_before_the_checker(self):
+        main = parse(render_home(CTX)).find_all("main")[0]
+        order = [(" ".join(k.classes), k.attrs.get("id")) for k in main.children]
+        finder = next(i for i, (c, _) in enumerate(order) if "finder" in c)
+        check = next(i for i, (_, i_d) in enumerate(order) if i_d == "check")
+        self.assertLess(finder, check)
+
     def test_escapes_data(self):
         html = render_food(make_food(why="<script>bad()</script>"), CTX)
         self.assertNotIn("<script>bad()", html)

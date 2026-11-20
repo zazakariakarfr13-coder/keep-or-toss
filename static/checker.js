@@ -2,6 +2,26 @@
 
 const UNIT_HOURS = { hours: 1, days: 24, weeks: 168, months: 720, years: 8760 };
 
+export function matchItems(items, query, limit) {
+  // items: [{name, key, rank}]; name matches beat keyword matches; pages (rank 0) beat quick answers (rank 1).
+  const q = query.trim().toLowerCase();
+  if (!q) return [];
+  const scored = [];
+  for (const it of items) {
+    const n = it.name.toLowerCase();
+    const k = (it.key || n).toLowerCase();
+    let score = -1;
+    if (n.startsWith(q)) score = 0;
+    else if (n.split(/[^a-z0-9]+/).some((w) => w.startsWith(q))) score = 1;
+    else if (n.includes(q)) score = 2;
+    else if (k.split(/[^a-z0-9]+/).some((w) => w.startsWith(q))) score = 3;
+    // quick answers (rank 1) sit 1.5 steps lower, so a guide with the word in its name comes first
+    if (score >= 0) scored.push([score + (it.rank ? 1.5 : 0), it]);
+  }
+  scored.sort((a, b) => a[0] - b[0] || a[1].name.localeCompare(b[1].name));
+  return scored.slice(0, limit).map((x) => x[1]);
+}
+
 export function matchFoods(names, query, limit) {
   const q = query.trim().toLowerCase();
   if (!q) return [];
@@ -156,21 +176,27 @@ function initSearch(api) {
   const list = document.getElementById("all-foods");
   const count = document.getElementById("search-count");
   if (!input || !list) return;
-  const byName = new Map([...list.children].map((li) => [li.querySelector("a").textContent, li]));
-  const names = [...byName.keys()];
+  const items = [...list.children].map((li) => ({
+    li, name: li.querySelector(".r-name").textContent, key: li.dataset.name, rank: Number(li.dataset.rank || 0),
+  }));
   const render = () => {
-    const hits = matchFoods(names, input.value, 40);
+    const hits = matchItems(items, input.value, 40);
     input.closest(".finder")?.classList.toggle("searching", input.value.trim() !== "");
-    for (const li of list.children) li.hidden = true;
-    for (const n of hits) { const li = byName.get(n); li.hidden = false; list.append(li); }
+    for (const it of items) it.li.hidden = true;
+    for (const it of hits) { it.li.hidden = false; list.append(it.li); }
     if (count) {
       count.textContent = !input.value.trim() ? ""
-        : hits.length ? `${hits.length === 40 ? "Top 40" : hits.length} match${hits.length === 1 ? "" : "es"}. Tap a food to check it.`
+        : hits.length ? `${hits.length === 40 ? "Top 40" : hits.length} result${hits.length === 1 ? "" : "s"}.`
         : "No match. Try a simpler word, like “chicken” or “cheese”.";
     }
   };
   render();
   input.addEventListener("input", render);
+  input.addEventListener("keydown", (e) => {
+    if (e.key !== "Enter") return;
+    const first = items.find((it) => !it.li.hidden);
+    if (first) { e.preventDefault(); first.li.querySelector(".r-name").click(); }
+  });
   if (api) {
     document.addEventListener("click", (e) => {
       const a = e.target.closest("a[data-food]");

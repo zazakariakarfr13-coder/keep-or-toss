@@ -48,7 +48,41 @@ a:hover { text-decoration-thickness: 2px; }
 .logo em { font-style: normal; color: var(--muted); font-weight: 600; }
 .logo-mark { width: 30px; height: 30px; fill: var(--brand); stroke: var(--brand-ink); stroke-width: 2; stroke-linecap: round; }
 .logo-mark .tick { stroke: var(--mint); stroke-width: 3; fill: none; }
-.header-cta { background: var(--mint); color: var(--ink); text-decoration: none; font-weight: 700; font-size: .9rem; padding: 8px 14px; border-radius: 999px; white-space: nowrap; }
+.header-cta { margin-left: auto; background: var(--mint); color: var(--ink); text-decoration: none; font-weight: 700; font-size: .9rem; padding: 8px 14px; border-radius: 999px; white-space: nowrap; }
+
+/* menu: a table of contents (titles with their pages underneath) */
+.site-header .wrap { position: relative; gap: 8px; }
+.menu > summary {
+  list-style: none; display: flex; align-items: center; gap: 6px; cursor: pointer; user-select: none;
+  padding: 7px 12px; border-radius: 999px; border: 1.5px solid var(--line); font-weight: 700; font-size: .9rem;
+}
+.menu > summary::-webkit-details-marker { display: none; }
+.menu[open] > summary { background: var(--mint); border-color: var(--brand); }
+.menu-icon { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; }
+.menu-panel {
+  position: absolute; right: 16px; top: calc(100% + 6px); z-index: 50;
+  width: min(360px, calc(100vw - 32px)); max-height: min(75vh, 640px); overflow: auto;
+  background: var(--paper); border: 1px solid var(--line); border-radius: 16px; padding: 6px 18px;
+  box-shadow: 0 14px 40px rgba(11, 37, 48, .2);
+}
+.menu-list, .menu-list ul { list-style: none; margin: 0; padding: 0; }
+.menu-group { padding: 12px 0; border-bottom: 1px solid var(--line); }
+.menu-group:last-child { border-bottom: 0; }
+.menu-h { display: block; font-size: .75rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+a.menu-h { font-size: 1.05rem; letter-spacing: 0; text-transform: none; color: var(--brand); margin: 0; }
+.menu-list a { display: block; padding: 4px 0; color: var(--ink); text-decoration: none; }
+.menu-list a:hover { color: var(--brand); text-decoration: underline; }
+.menu-list a.menu-sub { font-weight: 700; }
+.menu-list ul ul { margin: 2px 0 8px 2px; padding-left: 12px; border-left: 2px solid var(--line); }
+.menu-list a[aria-current="page"] { color: var(--brand); font-weight: 800; }
+.logo span { white-space: nowrap; }
+@media (max-width: 420px) {
+  .menu > summary span { display: none; }
+  .menu > summary { padding: 7px 9px; }
+  .header-cta { padding: 7px 10px; font-size: .82rem; }
+  .logo { font-size: 1.05rem; gap: 8px; }
+}
+@media (max-width: 350px) { .header-cta { display: none; } }
 
 .crumbs { font-size: .85rem; color: var(--muted); margin: 14px 0 0; }
 .crumbs a { color: var(--muted); }
@@ -136,6 +170,12 @@ li { margin: 4px 0; }
 .chip:hover, .chip:focus-visible { border-color: var(--brand); background: var(--mint); }
 .finder.searching .chips, .finder.searching .chips-label { display: none; }
 .search-count { font-size: .9rem; color: var(--muted); margin: 4px 0; min-height: 1.2em; }
+.food-list.results { columns: 1; }
+.food-list.results li { padding: 6px 0; border-bottom: 1px solid var(--line); }
+.badge {
+  display: inline-block; vertical-align: middle; margin: 0 4px; padding: 1px 8px; border-radius: 999px;
+  background: var(--mint); color: var(--ink); font-size: .68rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase;
+}
 .food-list .guide-link { font-size: .85rem; font-weight: 700; }
 .checker-result .note, .checker-result .source { font-size: .9rem; color: var(--muted); }
 

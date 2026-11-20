@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { matchFoods, placesFor, spanText, verdict } from "../../static/checker.js";
+import { matchFoods, matchItems, placesFor, spanText, verdict } from "../../static/checker.js";
 
 const rice = {
   slug: "cooked-rice", name: "Cooked rice", category: "leftovers",
@@ -69,4 +69,25 @@ test("matchFoods ranks words that start with the query first, and limits results
   assert.deepEqual(matchFoods(names, "", 3), []);
   assert.deepEqual(matchFoods(names, "zzz", 3), []);
   assert.ok(matchFoods(names, "apple", 10).includes("Pineapple"));
+});
+
+test("matchItems searches names and keywords, pages before quick answers", () => {
+  const items = [
+    { name: "White rice (uncooked)", key: "white rice (uncooked)", rank: 1 },
+    { name: "Cooked rice", key: "cooked rice how long does cooked rice last", rank: 0 },
+    { name: "Rice left out overnight", key: "rice left out overnight is it safe", rank: 0 },
+    { name: "Ketchup", key: "ketchup", rank: 1 },
+  ];
+  assert.deepEqual(matchItems(items, "rice", 10).map((i) => i.name),
+    ["Rice left out overnight", "Cooked rice", "White rice (uncooked)"]);
+  assert.deepEqual(matchItems(items, "overnight", 10).map((i) => i.name), ["Rice left out overnight"]);
+  assert.deepEqual(matchItems(items, "  ", 10), []);
+});
+
+test("a full guide whose name contains the word beats a quick answer that starts with it", () => {
+  const items = [
+    { name: "Rice milk", key: "rice milk", rank: 1 },
+    { name: "Cooked rice", key: "cooked rice", rank: 0 },
+  ];
+  assert.deepEqual(matchItems(items, "rice", 10).map((i) => i.name), ["Cooked rice", "Rice milk"]);
 });

@@ -114,6 +114,43 @@ def _path_of(slug: str, ctx: dict) -> tuple[str, str]:
     return url_for("guide", slug), g.title
 
 
+# ---------- site menu (table of contents) ----------
+
+def _menu(ctx: dict, L) -> str:
+    """A ☰ menu: main titles with their pages listed underneath. <details> works without JavaScript."""
+    def link(href: str, name: str, cls: str = "") -> str:
+        target = L(href)
+        current = ' aria-current="page"' if target == "./" else ""
+        klass = f' class="{cls}"' if cls else ""
+        return f'<a{klass} href="{target}"{current}>{escape(name)}</a>'
+
+    def group(title: str, inner: str) -> str:
+        return f'<li class="menu-group"><span class="menu-h">{escape(title)}</span><ul>{inner}</ul></li>'
+
+    foods = ctx.get("foods_by_slug", {}).values()
+    cats = ""
+    for c, name in config.CATEGORIES.items():
+        in_cat = sorted((f for f in foods if f.category == c), key=lambda f: f.name)
+        if in_cat:
+            subs = "".join(f"<li>{link(url_for('food', f.slug), f.name)}</li>" for f in in_cat)
+            cats += f'<li>{link(url_for("category", c), name, "menu-sub")}<ul>{subs}</ul></li>'
+    los = "".join(f"<li>{link(url_for('leftout', lo.slug), lo.question.split(':')[0])}</li>"
+                  for lo in ctx.get("leftout_by_slug", {}).values())
+    gds = "".join(f"<li>{link(url_for('guide', g.slug), g.title.split(':')[0])}</li>"
+                  for g in ctx.get("guides_by_slug", {}).values())
+    about = "".join(f"<li>{link(h, n)}</li>" for h, n in
+                    [("about/", "About Keep or Toss"), ("sources/", "Sources"), ("privacy/", "Privacy")])
+    body = (f'<li class="menu-group"><a class="menu-h" href="{L("")}#check">Check a food</a></li>'
+            + (group("Food guides", cats) if cats else "")
+            + (group("Left out too long?", los) if los else "")
+            + (group("Guides", gds) if gds else "")
+            + group("About", about))
+    return ('<details class="menu"><summary aria-label="Menu">'
+            '<svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>'
+            '<span>Menu</span></summary>'
+            f'<nav class="menu-panel" aria-label="Site contents"><ul class="menu-list">{body}</ul></nav></details>')
+
+
 # ---------- page shell ----------
 
 def shell(path: str, title: str, description: str, body: str, ctx: dict, *,
@@ -171,6 +208,7 @@ def shell(path: str, title: str, description: str, body: str, ctx: dict, *,
         '<path d="M6 12h20M10 6v3M10 16v5"/><path class="tick" d="M14 21l3 3 6-7"/></svg>'
         '<span>Keep <em>or</em> Toss</span></a>'
         f'<a class="header-cta" href="{L("")}#check">Check a food</a>'
+        f'{_menu(ctx, L)}'
         "</div></header>"
     )
     used = {f.category for f in ctx.get("foods_by_slug", {}).values()}
@@ -184,6 +222,10 @@ def shell(path: str, title: str, description: str, body: str, ctx: dict, *,
         f'<p class="small">{escape(config.DISCLAIMER)}</p>'
         "</div></footer>"
     )
+    # close the menu on Escape or a click outside it (the menu itself works without this)
+    footer += ("<script>document.addEventListener('click',e=>{const m=document.querySelector('details.menu[open]');"
+               "if(m&&!m.contains(e.target))m.open=false});document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;"
+               "const m=document.querySelector('details.menu[open]');if(m){m.open=false;m.querySelector('summary').focus()}})</script>")
     return "\n".join(head) + f"\n<body>\n{header}\n<div class=\"wrap\">{crumb_html}\n<main>\n{body}\n</main></div>\n{footer}\n</body>\n</html>\n"
 
 
@@ -332,18 +374,45 @@ def _hint(storage) -> str:
     return ""
 
 
+def _search_items(ctx: dict) -> list[str]:
+    """Every searchable thing on the site, as <li> rows: name, type badge, link. Pages rank above quick answers."""
+    rows = []  # (sort name, html)
+
+    def row(name, key, kind, rank, href, extra="", food=""):
+        data_food = f' data-food="{food}"' if food else ""
+        rows.append((name.lower(), f'<li data-name="{escape(key.lower())}" data-type="{kind}" data-rank="{rank}">'
+                                   f'<a class="r-name" href="{href}"{data_food}>{escape(name)}</a> '
+                                   f'<span class="badge">{kind}</span>{extra}</li>'))
+
+    for f in ctx["foods_by_slug"].values():
+        row(f.name, f"{f.name} {f.question} {config.CATEGORIES[f.category]}", "Food guide", 0, url_for("food", f.slug),
+            f' <span class="hint">{escape(_hint(f.storage))}</span>')
+    for q in ctx.get("quick_by_slug", {}).values():
+        row(q.name, f"{q.name} {config.CATEGORIES[q.category]}", "Quick answer", 1, f"?food={q.slug}#check",
+            f' <span class="hint">{escape(_hint(q.storage))}</span>', food=q.slug)
+    for lo in ctx["leftout_by_slug"].values():
+        food = ctx["foods_by_slug"][lo.food].name
+        row(lo.question, f"{lo.question} {food} left out overnight counter room temperature", "Left out", 0,
+            url_for("leftout", lo.slug))
+    for g in ctx["guides_by_slug"].values():
+        row(g.title, f"{g.title} {g.description}", "Guide", 0, url_for("guide", g.slug))
+    for c, name in config.CATEGORIES.items():
+        if any(f.category == c for f in ctx["foods_by_slug"].values()):
+            row(f"{name}: all guides", f"{name} category", "Category", 0, url_for("category", c))
+    for kind, name, key in [("about", "About Keep or Toss", "about who why"), ("sources", "Sources", "sources usda fda cdc"),
+                            ("privacy", "Privacy", "privacy cookies data")]:
+        row(name, key, "Info", 0, url_for(kind))
+    return [html for _, html in sorted(rows)]
+
+
 def render_home(ctx: dict) -> str:
     foods = sorted(ctx["foods_by_slug"].values(), key=lambda f: f.name)
-    everything = sorted([*foods, *ctx.get("quick_by_slug", {}).values()], key=lambda f: f.name.lower())
+    quick = ctx.get("quick_by_slug", {})
+    n_foods = len(foods) + len(quick)
     used = [c for c in config.CATEGORIES if any(f.category == c for f in foods)]
     cats = "".join(f'<li><a href="{url_for("category", c)}">{escape(config.CATEGORIES[c])}</a></li>' for c in used)
-    items = []
-    for f in everything:
-        guide = (f' · <a class="guide-link" href="{url_for("food", f.slug)}">full guide</a>'
-                 if f.slug in ctx["foods_by_slug"] else "")
-        items.append(f'<li data-name="{escape(f.name.lower())}"><a href="?food={f.slug}#check" data-food="{f.slug}">'
-                     f'{escape(f.name)}</a> <span class="hint">{escape(_hint(f.storage))}</span>{guide}</li>')
-    names = {f.slug: f.name for f in everything}
+    items = _search_items(ctx)
+    names = {**{f.slug: f.name for f in foods}, **{q.slug: q.name for q in quick.values()}}
     chips = "".join(f'<li><a class="chip" href="?food={slug}#check" data-food="{slug}">{escape(names[slug])}</a></li>'
                     for slug in config.POPULAR if slug in names)
     guides = "".join(f'<li><a href="{url_for("guide", g.slug)}">{escape(g.title)}</a></li>'
@@ -352,25 +421,25 @@ def render_home(ctx: dict) -> str:
                   for lo in ctx["leftout_by_slug"].values())
     body = "\n".join([
         "<h1>Is it still OK to eat?</h1>",
+        '<section class="finder" role="search">'
+        f'<label class="search-label" for="food-search">Search {n_foods} foods, guides and answers</label>'
+        '<input id="food-search" type="search" placeholder="Try: rice, overnight, best before" autocomplete="off">'
+        f'<p class="chips-label">Popular:</p><ul class="chips">{chips}</ul>'
+        '<p class="search-count" id="search-count" aria-live="polite"></p>'
+        f'<ul class="food-list results" id="all-foods">{"".join(items)}</ul></section>',
         '<section class="answer checker" id="check" aria-label="Is it still OK? checker">'
         '<p class="lead">Pick a food, where you keep it, and when you opened or cooked it. '
         'Get a clear answer: keep it, use it today, or toss it.</p>'
         '<div class="checker-app" data-checker></div>'
-        '<noscript><p>The checker needs JavaScript. The food list below has the same times in plain text.</p></noscript>'
+        '<noscript><p>The checker needs JavaScript. The list above has the same times in plain text.</p></noscript>'
         "</section>",
-        f'<section class="finder"><h2>Find a food</h2>'
-        f'<label class="search-label" for="food-search">Search {len(everything)} foods</label>'
-        '<input id="food-search" type="search" placeholder="e.g. rice, salmon, ketchup" autocomplete="off">'
-        f'<p class="chips-label">Popular:</p><ul class="chips">{chips}</ul>'
-        f'<p class="search-count" id="search-count" aria-live="polite"></p>'
-        f'<ul class="food-list" id="all-foods">{"".join(items)}</ul></section>',
         f'<section><h2>Full guides by type</h2><ul class="cat-grid">{cats}</ul></section>',
         (f"<section><h2>Left out too long?</h2><ul>{los}</ul></section>" if los else ""),
         (f"<section><h2>Guides</h2><ul>{guides}</ul></section>" if guides else ""),
         _disclaimer(),
         '<script type="module" src="static/checker.js"></script>',
     ])
-    desc = (f"Is your food still safe to eat? Keep-or-toss answers for {len(everything)} foods in the fridge, "
+    desc = (f"Is your food still safe to eat? Keep-or-toss answers for {n_foods} foods in the fridge, "
             "freezer and pantry, from official food safety sources.")
     site = {"@context": "https://schema.org", "@type": "WebSite", "name": config.SITE_NAME, "url": config.BASE_URL}
     return shell("", "How long does food last?", desc, body, ctx, jsonld=[site], image_slug="default")
