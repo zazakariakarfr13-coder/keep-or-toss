@@ -64,15 +64,15 @@ def crescent() -> str:
 
 
 STYLE = """@media (prefers-reduced-motion: no-preference){
-.sway{transform-box:fill-box;transform-origin:50% 0;animation:sway 5s ease-in-out infinite}
-.sway.s2{animation-duration:6.2s;animation-delay:-2s}.sway.s3{animation-duration:5.6s;animation-delay:-4s}
-@keyframes sway{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
-.tw{animation:tw 2.6s ease-in-out infinite}.tw.t2{animation-delay:-.9s}.tw.t3{animation-delay:-1.7s}
-@keyframes tw{0%,100%{opacity:1}50%{opacity:.4}}
-.flick{animation:flick 3.2s ease-in-out infinite}
-@keyframes flick{0%,100%{opacity:.85}45%{opacity:.55}60%{opacity:1}}
-.drift{transform-box:fill-box;transform-origin:center;animation:drift 9s ease-in-out infinite}
-@keyframes drift{50%{transform:translate(-5px,-7px) rotate(-5deg)}}
+.sway{transform-box:fill-box;transform-origin:50% 0;will-change:transform;
+  animation:sway 9s cubic-bezier(.37,0,.63,1) infinite alternate}
+.sway.s2{animation-duration:11s;animation-delay:-4s}.sway.s3{animation-duration:10s;animation-delay:-7s}
+@keyframes sway{from{transform:rotate(-1.5deg)}to{transform:rotate(1.5deg)}}
+.tw{animation:tw 5s ease-in-out infinite alternate}.tw.t2{animation-delay:-1.7s}.tw.t3{animation-delay:-3.4s}
+@keyframes tw{from{opacity:1}to{opacity:.75}}
+.drift{transform-box:fill-box;transform-origin:center;will-change:transform;
+  animation:drift 14s cubic-bezier(.37,0,.63,1) infinite alternate}
+@keyframes drift{from{transform:translate(0,0)}to{transform:translate(-3px,-3px)}}
 }"""
 
 
