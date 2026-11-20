@@ -1,7 +1,7 @@
 """Ramadan page decoration: string lights, three swaying lanterns (fanous), crescent sticker.
 
 Usage: py -3 scripts/make_ramadan_deco.py   -> writes static/art/ramadan-meal-prep.svg
-Decorative only (aria-hidden); every motion sits inside prefers-reduced-motion: no-preference.
+Decorative only (aria-hidden) and completely still.
 """
 from pathlib import Path
 
@@ -63,24 +63,13 @@ def crescent() -> str:
             f'stroke="{INK}" stroke-width="2" stroke-linejoin="round"/></g>')
 
 
-STYLE = """@media (prefers-reduced-motion: no-preference){
-.sway{transform-box:fill-box;transform-origin:50% 0;will-change:transform;
-  animation:sway 9s cubic-bezier(.37,0,.63,1) infinite alternate}
-.sway.s2{animation-duration:11s;animation-delay:-4s}.sway.s3{animation-duration:10s;animation-delay:-7s}
-@keyframes sway{from{transform:rotate(-1.5deg)}to{transform:rotate(1.5deg)}}
-.tw{animation:tw 5s ease-in-out infinite alternate}.tw.t2{animation-delay:-1.7s}.tw.t3{animation-delay:-3.4s}
-@keyframes tw{from{opacity:1}to{opacity:.75}}
-.drift{transform-box:fill-box;transform-origin:center;will-change:transform;
-  animation:drift 14s cubic-bezier(.37,0,.63,1) infinite alternate}
-@keyframes drift{from{transform:translate(0,0)}to{transform:translate(-3px,-3px)}}
-}"""
+STYLE = ""  # still on purpose: the owner chose no motion on this page
 
 
 def svg() -> str:
     string = "M-10 18 Q200 80 400 26 Q600 80 810 18"
     return (
         '<svg class="page-deco-art" viewBox="0 0 800 200" preserveAspectRatio="xMidYMin slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">'
-        f"<style>{STYLE}</style>"
         '<defs><radialGradient id="glow"><stop offset="0" stop-color="#ffd166" stop-opacity=".75"/>'
         '<stop offset="1" stop-color="#ffd166" stop-opacity="0"/></radialGradient></defs>'
         f'<path d="{string}" fill="none" style="stroke:var(--muted)" stroke-width="2" stroke-linecap="round"/>'

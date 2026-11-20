@@ -11,10 +11,11 @@ _spec.loader.exec_module(deco)
 
 
 class RamadanDecoTests(unittest.TestCase):
-    def test_decoration_is_hidden_and_calm(self):
+    def test_decoration_is_hidden_and_still(self):
         svg = deco.svg()
         self.assertIn('aria-hidden="true"', svg)
-        self.assertIn("prefers-reduced-motion: no-preference", svg)
+        self.assertNotIn("animation", svg)
+        self.assertNotIn("<style>", svg)
         self.assertNotIn("filter=", svg)  # moving parts must not carry SVG filters (Chromium repaint bug)
 
     def test_three_lanterns_and_some_lights(self):
