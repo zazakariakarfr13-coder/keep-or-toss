@@ -1,4 +1,5 @@
 import importlib.util
+import sys
 import unittest
 from pathlib import Path
 
@@ -8,6 +9,7 @@ from kot.render import url_for
 
 _spec = importlib.util.spec_from_file_location("make_pins", Path(__file__).resolve().parent.parent / "scripts" / "make_pins.py")
 make_pins = importlib.util.module_from_spec(_spec)
+sys.modules["make_pins"] = make_pins  # dataclasses look their module up here
 _spec.loader.exec_module(make_pins)
 
 
