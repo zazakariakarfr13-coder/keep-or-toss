@@ -1,4 +1,4 @@
-from data.sources import FSIS_DATING, UK_DATES
+from data.sources import FOODKEEPER, FS_COLD_CHART, FS_TEMPS, FSIS_DATING, FSIS_LEFTOVERS, UK_DATES
 from kot.schema import Guide, Section
 
 GUIDES = [
@@ -44,5 +44,57 @@ GUIDES = [
         ],
         sources=[FSIS_DATING, UK_DATES],
         related=["deli-meat", "eggs", "cooked-rice"],
+    ),
+    Guide(
+        slug="ramadan-meal-prep",
+        kind="seasonal",
+        title="Ramadan meal prep: how long iftar and suhoor food lasts",
+        description="Cooked iftar food lasts 3 to 4 days in the fridge and 2 to 3 months frozen. Safe batch cooking, "
+                    "keeping food warm and freezing for Ramadan.",
+        answer="Cooked food keeps 3 to 4 days in the fridge and 2 to 3 months in the freezer. Food left out for more "
+               "than 2 hours should be thrown out. If you keep food warm until sunset, keep it at {temp:140} or hotter.",
+        sections=[
+            Section("Can you cook iftar in the morning?", [
+                "Yes, if you cool it and keep it cold, or keep it hot the whole time. The risky part is the hours in "
+                "between, when warm food slowly cools down on the stove.",
+                "Cook in the morning, split the food into shallow boxes, and put them in the fridge within 2 hours. "
+                "Before sunset, reheat each dish until it is steaming hot, to {temp:165}.",
+            ]),
+            Section("How do you keep food warm until sunset?", [
+                "Hot food has to stay at {temp:140} or hotter the whole time. A slow cooker on its warm setting or a "
+                "low oven can do this. A pot with the lid on and the heat off cannot. It slowly cools into the range "
+                "where germs grow fastest.",
+            ], bullets=[
+                "Check warm food with a food thermometer now and then.",
+                "Heat cold leftovers up fully before you add them to a pot that is keeping warm.",
+            ]),
+            Section("Can you eat iftar leftovers at suhoor?", [
+                "Yes. Put leftovers in the fridge within 2 hours of iftar, not when you go to bed. At suhoor, reheat "
+                "only what you will eat until it is steaming hot.",
+                "Count the days from when the food was cooked, not from iftar. A dish cooked on Monday morning should "
+                "be eaten or frozen by Thursday.",
+            ]),
+            Section("How long does harira or lentil soup last?", [
+                "Like other soups and stews, harira and lentil soup last 3 to 4 days in the fridge and 2 to 3 months "
+                "in the freezer. Lentils and chickpeas thicken the soup as it sits, so add a splash of water when you "
+                "reheat it.",
+            ]),
+            Section("Can you freeze samosas, briouats and spring rolls?", [
+                "Yes. Freeze them uncooked in one layer on a tray, then move them to a freezer bag once they are hard. "
+                "Fry or bake them straight from frozen, and make sure meat fillings are cooked all the way through.",
+                "Fried or baked ones can be frozen too. The USDA guide for cooked dishes is 2 to 3 months in the "
+                "freezer for the best taste. Reheat them in the oven so they turn crisp again.",
+            ]),
+            Section("A simple freezer plan for the month", [
+                "A few hours of cooking before Ramadan saves time on every long fasting day.",
+            ], bullets=[
+                "Cook and freeze soup bases, sauces and fillings in family-size portions.",
+                "Label every bag with what is inside and the date.",
+                "Each night, move the next day's food from the freezer to the fridge so it thaws safely.",
+                "Keep dates sealed in the pantry, fridge or freezer so they last the whole month.",
+            ]),
+        ],
+        sources=[FSIS_LEFTOVERS, FS_COLD_CHART, FS_TEMPS, FOODKEEPER],
+        related=["dates", "soup", "cooked-rice", "cooked-chicken"],
     ),
 ]

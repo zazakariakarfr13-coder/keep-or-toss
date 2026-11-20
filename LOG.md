@@ -22,3 +22,9 @@
 - Conservative picks: salmon 1-2 d (FoodKeeper) rather than chart 1-3 d; raw shrimp 1-3 d rather than 3-5 d; bacon freezer 1 mo (chart) rather than 4 mo (FSIS bacon page), stated on the page; cooked pasta 3-4 d (FSIS) rather than 3-5 d (FoodKeeper). Two unsourced homemade times were removed from the drafts.
 - The trap-guard caught mayonnaise at 216 words; it got a real detail (squeeze bottles). Grades are 3.1-4.5. No page pair is above 0.10 similarity.
 - Now 20 full guides plus 418 quick answers (438 foods). The quick "Salmon (raw)" and "Bacon (raw)" were replaced by the guides.
+
+## 2026-11-20 — Ramadan pages (seasonal)
+- Ramadan 2027 is expected to start around 8 February (it depends on the moon sighting), so these pages must be indexed by early December.
+- Demand (Google autocomplete): dates are strong (how long / do they go bad / how to store / freeze); "Ramadan meal prep", "Ramadan freezer meals" and "suhoor meal prep" are steady; "can you freeze samosas" and "lentil soup / harira in the fridge" are strong. "Iftar leftovers / iftar food safety" returned no suggestions.
+- New: Dates food guide (FoodKeeper: pantry 2 mo, fridge 12 mo, freezer 1-2 yr) and the "Ramadan meal prep" seasonal guide (FSIS leftovers 3-4 d / 2-h rule / hot holding at 140°F; FoodSafety.gov reheat to 165°F; soups 3-4 d / 2-3 mo; FoodKeeper main dishes 2-3 mo frozen). Harira and samosas are covered as sections, not separate pages, to avoid near-duplicates of the soup guide.
+- The search now indexes guide section headings, so "harira", "samosa" and "iftar" find the Ramadan guide.

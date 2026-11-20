@@ -395,7 +395,9 @@ def _search_items(ctx: dict) -> list[str]:
         row(lo.question, f"{lo.question} {food} left out overnight counter room temperature", "Left out", 0,
             url_for("leftout", lo.slug))
     for g in ctx["guides_by_slug"].values():
-        row(g.title, f"{g.title} {g.description}", "Guide", 0, url_for("guide", g.slug))
+        headings = " ".join(sec.heading for sec in g.sections)
+        row(g.title, f"{g.title} {g.description} {headings}", "Seasonal" if g.kind == "seasonal" else "Guide", 0,
+            url_for("guide", g.slug))
     for c, name in config.CATEGORIES.items():
         if any(f.category == c for f in ctx["foods_by_slug"].values()):
             row(f"{name}: all guides", f"{name} category", "Category", 0, url_for("category", c))

@@ -70,4 +70,39 @@ FOODS = [
         sources=[FOODKEEPER, FSIS_MOLDS],
         related=["avocado"],
     ),
+    Food(
+        slug="dates",
+        name="Dates",
+        category="produce",
+        question="How long do dates last?",
+        description="Dates last about 2 months in the pantry, up to a year in the fridge, and 1 to 2 years in the "
+                    "freezer. Here is how to store them and spot bad ones.",
+        storage={
+            "pantry": Span(2, 2, "months", "In a sealed jar or bag, somewhere cool and dark."),
+            "fridge": Span(12, 12, "months", "Best for soft dates like Medjool."),
+            "freezer": Span(1, 2, "years"),
+        },
+        why="Dates dry on the palm before they are picked, so they have little water and a lot of sugar. "
+            "Germs struggle to grow in them, which is why they keep for months, not days.",
+        spoiled_signs=[
+            "Fuzzy mold of any color. Throw those dates out, and check the rest of the box closely.",
+            "A sour, fermented or alcohol smell.",
+            "Tiny holes, webs or crumbs in the box. These are signs of pantry insects.",
+            "If you are not sure whether a spot is mold, throw that date out.",
+        ],
+        how_to_store=[
+            "Move them from an open box into a jar or bag that seals tightly.",
+            "Keep the jar away from the stove and sunny windows. Warmth dries them out and draws insects.",
+            "Soft, moist dates like Medjool keep their texture best in the fridge.",
+            "Before Ramadan, buy one big box and split it: some in the pantry for now, the rest in the fridge or freezer.",
+        ],
+        common_mistake="Leaving dates in an open bowl on the table for the whole month of Ramadan. Open to the air, "
+                       "they dry out and pick up dust and fruit flies. Put out only what your family will eat at "
+                       "iftar, and keep the rest sealed.",
+        freezing="Dates freeze very well for 1 to 2 years. Pit them if you like, pack them in a freezer bag with the "
+                 "air pressed out, and write the date on the bag. Their sugar stops them from freezing rock hard, "
+                 "so you can take out a few at a time. Frozen dates are great in smoothies and baking.",
+        sources=[FOODKEEPER],
+        related=["ramadan-meal-prep", "strawberries"],
+    ),
 ]

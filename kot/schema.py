@@ -86,7 +86,7 @@ class Section:
 @dataclass
 class Guide:
     slug: str
-    kind: Literal["country", "emergency", "bridge"]
+    kind: Literal["country", "emergency", "bridge", "seasonal"]
     title: str
     description: str
     answer: str
@@ -124,7 +124,7 @@ def validate_all(foods: list[Food], leftout: list[LeftOut], guides: list[Guide],
         if lo.verdict not in ("toss", "keep", "depends"):
             raise ValueError(f"{lo.slug}: unknown verdict {lo.verdict!r}")
     for g in guides:
-        if g.kind not in ("country", "emergency", "bridge"):
+        if g.kind not in ("country", "emergency", "bridge", "seasonal"):
             raise ValueError(f"{g.slug}: unknown kind {g.kind!r}")
     for q in quick:
         if not _SLUG.match(q.slug):

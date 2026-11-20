@@ -195,6 +195,20 @@ class OtherPageTests(unittest.TestCase):
         check = next(i for i, (_, i_d) in enumerate(order) if i_d == "check")
         self.assertLess(finder, check)
 
+    def test_seasonal_guide_is_valid_and_labelled(self):
+        from kot.schema import validate_all
+        g = make_guide(slug="ramadan-meal-prep", kind="seasonal", title="Ramadan meal prep")
+        validate_all([FOOD], [], [g])
+        html = render_guide(g, make_ctx([FOOD], [], [g]))
+        self.assertIn("answer", first_after_h1(parse(html)).classes)
+        self.assertIn('data-type="Seasonal"', render_home(make_ctx([FOOD], [], [g])))
+
+    def test_guide_section_headings_are_searchable(self):
+        g = make_guide(sections=[Section("Can you freeze samosas?", ["Yes."])])
+        html = render_home(make_ctx([FOOD], [], [g]))
+        row = next(li for li in parse(html).find_all("li") if li.attrs.get("data-type") == "Guide")
+        self.assertIn("samosas", row.attrs["data-name"])
+
     def test_escapes_data(self):
         html = render_food(make_food(why="<script>bad()</script>"), CTX)
         self.assertNotIn("<script>bad()", html)
