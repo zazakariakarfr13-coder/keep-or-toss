@@ -136,16 +136,17 @@ def art(shadow: str, body: str, backdrop: str = "") -> str:
 
 # ---------------------------------------------------------------- the ten pieces
 def rice_art(bg):
-    back = moon(840, 120, 72, bg) + star(130, 110, 22, CREAM) + star(220, 60, 12, CREAM) + star(720, 70, 14, CREAM) + star(900, 300, 16, CREAM)
-    body = (f'<path d="M240 440 Q500 160 760 440Z" fill="#fff" {S}/>'
+    back = (f'<g class="bob">{moon(840, 120, 72, bg)}</g><g class="tw">' + star(130, 110, 22, CREAM) + star(220, 60, 12, CREAM)
+            + star(720, 70, 14, CREAM) + star(900, 300, 16, CREAM) + '</g>')
+    body = (f'<g class="breathe"><path d="M240 440 Q500 160 760 440Z" fill="#fff" {S}/>'
             + grains(240, 760, 440, 160, 34, 11)
             + f'<path d="M190 440 L810 440 Q800 650 610 705 L390 705 Q200 650 190 440Z" fill="{CORAL}" {S}/>'
             + f'<path d="M660 440 L810 440 Q800 650 610 705 Q720 610 660 440Z" fill="url(#hatch)"/>'
             + f'<path d="M190 470 L810 470" stroke="{INK}" stroke-width="5" stroke-dasharray="2 22" stroke-linecap="round"/>'
             + f'<path d="M420 705 L580 705 L565 745 L435 745Z" fill="{CORAL}" {S}/>'
-            + face(500, 560, "sleep", 1.25)
-            + f'<text x="235" y="330" font-family="Anton" font-size="96" fill="{CREAM}">Z</text>'
-            + f'<text x="170" y="245" font-family="Anton" font-size="62" fill="{CREAM}">z</text>')
+            + face(500, 560, "sleep", 1.25) + '</g>'
+            + f'<text class="z1" x="235" y="330" font-family="Anton" font-size="96" fill="{CREAM}">Z</text>'
+            + f'<text class="z2" x="170" y="245" font-family="Anton" font-size="62" fill="{CREAM}">z</text>')
     return art("#0e1430", body, back)
 
 
@@ -248,14 +249,14 @@ def deli_art(bg):
 
 def beef_art(bg):
     left = f'<path d="M480 200 A260 260 0 0 0 480 720 L520 640 L460 560 L530 470 L460 380 L520 290Z" fill="#c8453b" {S}/>'
-    right = (f'<g transform="translate(70 -10) rotate(8 520 460)">'
+    right = (f'<g class="crack"><g transform="translate(70 -10) rotate(8 520 460)">'
              f'<path d="M520 200 A260 260 0 0 1 520 720 L560 640 L500 560 L570 470 L500 380 L560 290Z" fill="#c8453b" {S}/>'
              f'<path d="M560 290 L500 380 L570 470 L500 560 L560 640 L520 720 Q660 600 650 460 Q660 330 520 200Z" fill="#8f8a86" stroke="{INK}" stroke-width="4"/>'
-             f'<path d="M560 290 L500 380 L570 470 L500 560 L560 640 L520 720 Q660 600 650 460 Q660 330 520 200Z" fill="url(#dots)"/></g>')
+             f'<path d="M560 290 L500 380 L570 470 L500 560 L560 640 L520 720 Q660 600 650 460 Q660 330 520 200Z" fill="url(#dots)"/></g></g>')
     dots = "".join(f'<circle cx="{x}" cy="{y}" r="7" fill="#f2a59a"/>' for x, y in [(330, 330), (390, 470), (300, 560), (420, 620), (350, 420)])
-    lens = (f'<circle cx="690" cy="430" r="120" fill="#ffffff" fill-opacity=".22" stroke="{INK}" stroke-width="16"/>'
-            f'<path d="M775 520 L880 640" stroke="{INK}" stroke-width="34" stroke-linecap="round"/>')
-    body = left + dots + right + face(360, 440, "shock", 1.05) + lens
+    lens = (f'<g class="lens"><circle cx="690" cy="430" r="120" fill="#ffffff" fill-opacity=".22" stroke="{INK}" stroke-width="16"/>'
+            f'<path d="M775 520 L880 640" stroke="{INK}" stroke-width="34" stroke-linecap="round"/></g>')
+    body = left + dots + right + f'<g class="blink">{face(360, 440, "shock", 1.05)}</g>' + lens
     return art("#e2b07a", body)
 
 
@@ -360,12 +361,41 @@ html,body{width:1000px;height:1500px;overflow:hidden}
 """
 
 
-def html(p: Pin) -> str:
+MOTION = """
+.q{animation:drop .7s cubic-bezier(.2,1.4,.4,1) both}
+.art{animation:fadeup .8s .25s both}
+.stamp{animation:slam .5s cubic-bezier(.2,1.5,.4,1) var(--slam,1.8s) both}
+.pin{animation:shake .35s calc(var(--slam,1.8s) + .3s) both}
+.sub{animation:fadeup .6s calc(var(--slam,1.8s) + .6s) both}
+.foot{animation:fadeup .6s calc(var(--slam,1.8s) + .9s) both}
+@keyframes drop{from{transform:translateY(-70px);opacity:0}to{transform:none;opacity:1}}
+@keyframes fadeup{from{transform:translateY(30px);opacity:0}to{transform:none;opacity:1}}
+@keyframes slam{0%{transform:rotate(-4deg) scale(2.6);opacity:0}55%{opacity:1}100%{transform:rotate(-4deg) scale(1);opacity:1}}
+@keyframes shake{0%,100%{transform:none}25%{transform:translate(7px,-5px)}50%{transform:translate(-6px,5px)}75%{transform:translate(3px,2px)}}
+.breathe{transform-box:fill-box;transform-origin:50% 100%;animation:breathe 2.6s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:scale(1,1)}50%{transform:scale(1.03,.97)}}
+.z1,.z2{animation:float 2.6s ease-in infinite}.z2{animation-delay:1.3s}
+@keyframes float{0%{transform:translate(0,30px);opacity:0}20%{opacity:1}100%{transform:translate(-50px,-110px);opacity:0}}
+.tw>*{transform-box:fill-box;transform-origin:center;animation:tw 1.8s ease-in-out infinite}.tw>*:nth-child(2n){animation-delay:.9s}
+@keyframes tw{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(.45);opacity:.35}}
+.bob{animation:bob 4s ease-in-out infinite}@keyframes bob{50%{transform:translateY(-14px)}}
+.crack{animation:crack 1.1s cubic-bezier(.3,1.5,.5,1) .6s both}
+@keyframes crack{from{transform:translate(-70px,10px) rotate(-6deg)}to{transform:none}}
+.lens{animation:lens 1.3s cubic-bezier(.4,0,.2,1) 1.2s both}
+@keyframes lens{from{transform:translate(-430px,170px);opacity:0}25%{opacity:1}to{transform:none;opacity:1}}
+.blink{transform-box:fill-box;transform-origin:center;animation:blink 3.2s 1.4s infinite}
+@keyframes blink{0%,90%,100%{transform:scaleY(1)}94%{transform:scaleY(.1)}}
+"""
+
+
+def html(p: Pin, animated: bool = False, slam: float = 1.8) -> str:
     lines = 1 if len(p.question) <= 14 else 2 if len(p.question) <= 26 else 3
     art_top = {1: 210, 2: 300, 3: 390}[lines]
     style = (f"--bg:{p.bg};--text:{p.text};--shadow:{p.shadow};--sbg:{p.stamp_bg};--sfg:{p.stamp_fg};"
              f"--qs:{p.q_size}px;--as:{p.a_size}px;--art-top:{art_top}px")
-    return (f"<!doctype html><html><head><meta charset='utf-8'><style>{CSS}</style></head><body>"
+    if animated:
+        style += f";--slam:{slam}s"
+    return (f"<!doctype html><html><head><meta charset='utf-8'><style>{CSS}{MOTION if animated else ''}</style></head><body>"
             f"<div class='pin' style='{style}'>"
             f"<div class='art'>{ARTS[p.slug](p.bg)}</div>"
             f"<div class='q'>{p.question}</div>"
