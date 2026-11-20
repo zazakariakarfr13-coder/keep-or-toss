@@ -199,3 +199,12 @@ li { margin: 4px 0; }
 /* footer */
 .site-footer { border-top: 1px solid var(--line); background: var(--paper); padding: 18px 0 26px; font-size: .9rem; }
 .site-footer .cats a { color: var(--muted); }
+
+/* seasonal: Ramadan (only the Ramadan guide gets body.theme-ramadan) */
+.page-deco { margin: 0 -16px -18px; pointer-events: none; }
+.page-deco-art { display: block; width: 100%; height: clamp(130px, 26vw, 200px); }
+body.theme-ramadan { --bg: #f7f2e6; --festive: #d4a017; }
+@media (prefers-color-scheme: dark) { body.theme-ramadan { --bg: #0b1722; --festive: #e0a92e; } }
+.theme-ramadan .site-header { border-bottom: 3px solid var(--festive); }
+.theme-ramadan .answer { border-top-color: var(--festive); }
+.theme-ramadan main h2::before { content: "✦ "; color: var(--festive); }

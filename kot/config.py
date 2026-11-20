@@ -19,6 +19,9 @@ CATEGORIES = {
 
 PLACES = ("fridge", "freezer", "pantry", "counter")
 
+# Pages with a seasonal look: slug -> theme name (body class "theme-<name>" + optional static/art/<slug>.svg on top)
+THEMES = {"ramadan-meal-prep": "ramadan"}
+
 # Clickable examples under the home search box (slugs of pages or quick foods)
 POPULAR = [
     "cooked-rice", "eggs", "pizza", "raw-chicken", "ground-beef", "deli-meat", "butter", "avocado",

@@ -209,6 +209,23 @@ class OtherPageTests(unittest.TestCase):
         row = next(li for li in parse(html).find_all("li") if li.attrs.get("data-type") == "Guide")
         self.assertIn("samosas", row.attrs["data-name"])
 
+    def test_themed_guide_gets_body_class_and_top_decoration(self):
+        g = make_guide(slug="ramadan-meal-prep", kind="seasonal", title="Ramadan meal prep")
+        ctx = make_ctx([FOOD], [], [g], art={"ramadan-meal-prep": '<svg class="page-deco-art" aria-hidden="true"></svg>'})
+        with mock.patch.object(config, "THEMES", {"ramadan-meal-prep": "ramadan"}):
+            html = render_guide(g, ctx)
+        root = parse(html)
+        body = root.find_all("body")[0]
+        self.assertIn("theme-ramadan", body.classes)
+        main = root.find_all("main")[0]
+        self.assertIn("page-deco", main.children[0].classes)
+        self.assertEqual(main.children[0].attrs.get("aria-hidden"), "true")
+        self.assertIn("answer", first_after_h1(root).classes)
+
+    def test_unthemed_pages_have_no_theme_class(self):
+        body = parse(render_food(FOOD, CTX)).find_all("body")[0]
+        self.assertFalse([c for c in body.classes if c.startswith("theme-")])
+
     def test_escapes_data(self):
         html = render_food(make_food(why="<script>bad()</script>"), CTX)
         self.assertNotIn("<script>bad()", html)

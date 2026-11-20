@@ -154,7 +154,8 @@ def _menu(ctx: dict, L) -> str:
 # ---------- page shell ----------
 
 def shell(path: str, title: str, description: str, body: str, ctx: dict, *,
-          crumbs=None, jsonld=None, image_slug: str | None = None, absolute: bool = False) -> str:
+          crumbs=None, jsonld=None, image_slug: str | None = None, absolute: bool = False,
+          theme: str | None = None) -> str:
     def L(to: str) -> str:
         return config.BASE_URL + to if absolute else rel(path, to)
 
@@ -226,7 +227,8 @@ def shell(path: str, title: str, description: str, body: str, ctx: dict, *,
     footer += ("<script>document.addEventListener('click',e=>{const m=document.querySelector('details.menu[open]');"
                "if(m&&!m.contains(e.target))m.open=false});document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;"
                "const m=document.querySelector('details.menu[open]');if(m){m.open=false;m.querySelector('summary').focus()}})</script>")
-    return "\n".join(head) + f"\n<body>\n{header}\n<div class=\"wrap\">{crumb_html}\n<main>\n{body}\n</main></div>\n{footer}\n</body>\n</html>\n"
+    body_open = f'<body class="theme-{theme}">' if theme else "<body>"
+    return "\n".join(head) + f"\n{body_open}\n{header}\n<div class=\"wrap\">{crumb_html}\n<main>\n{body}\n</main></div>\n{footer}\n</body>\n</html>\n"
 
 
 def _sources_html(sources) -> str:
@@ -330,7 +332,9 @@ def render_guide(g: Guide, ctx: dict) -> str:
         paras = "".join(f"<p>{expand(p)}</p>" for p in s.paragraphs)
         bullets = _list(s.bullets) if s.bullets else ""
         secs.append(f"<section><h2>{escape(s.heading)}</h2>{paras}{bullets}</section>")
+    deco = ctx.get("art", {}).get(g.slug) if g.slug in config.THEMES else None
     body = "\n".join([
+        *([f'<div class="page-deco" aria-hidden="true">{deco}</div>'] if deco else []),
         f"<h1>{escape(g.title)}</h1>",
         f'<section class="answer short-answer" aria-label="Short answer"><p>{expand(g.answer)}</p></section>',
         *secs,
@@ -340,7 +344,8 @@ def render_guide(g: Guide, ctx: dict) -> str:
         _sources_html(g.sources),
         _disclaimer(),
     ])
-    return shell(path, g.title, g.description, body, ctx, crumbs=[("Home", ""), (g.title, path)], image_slug=g.slug)
+    return shell(path, g.title, g.description, body, ctx, crumbs=[("Home", ""), (g.title, path)], image_slug=g.slug,
+                 theme=config.THEMES.get(g.slug))
 
 
 def render_hub(category: str, foods: list[Food], ctx: dict) -> str:
