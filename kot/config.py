@@ -22,7 +22,7 @@ PLACES = ("fridge", "freezer", "pantry", "counter")
 # Clickable examples under the home search box (slugs of pages or quick foods)
 POPULAR = [
     "cooked-rice", "eggs", "pizza", "raw-chicken", "ground-beef", "deli-meat", "butter", "avocado",
-    "strawberries", "bananas", "bacon-raw", "salmon-raw", "cheddar-cheese", "yogurt", "hummus-store-bought",
+    "strawberries", "bananas", "bacon", "salmon", "cheddar-cheese", "yogurt", "hummus-store-bought",
     "guacamole", "ketchup", "mayonnaise", "sandwich-bread-store-bought", "soup",
 ]
 

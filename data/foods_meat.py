@@ -1,4 +1,4 @@
-from data.sources import CDC_LISTERIA, FOODKEEPER, FS_COLD_CHART, FSIS_LEFTOVERS
+from data.sources import CDC_LISTERIA, FOODKEEPER, FS_COLD_CHART, FSIS_BACON, FSIS_LEFTOVERS
 from kot.schema import Food, Span
 
 FOODS = [
@@ -106,5 +106,40 @@ FOODS = [
                  "between the slices, so you can take out only what you need.",
         sources=[FS_COLD_CHART, FOODKEEPER, CDC_LISTERIA],
         related=["raw-chicken"],
+    ),
+    Food(
+        slug="bacon",
+        name="Bacon",
+        category="meat",
+        question="How long does bacon last?",
+        description="Raw bacon lasts 7 days in the fridge once you bring it home, and cooked bacon lasts 4 to 5 days. "
+                    "Here is how to store bacon and tell if it has gone bad.",
+        storage={
+            "fridge": Span(7, 7, "days", "Raw bacon. Leftover cooked bacon: 4 to 5 days."),
+            "freezer": Span(1, 1, "months"),
+            "counter": None,
+        },
+        why="Bacon is cured with salt and smoke, which slows spoiling but does not stop it. "
+            "Raw bacon is still raw pork, so it needs the fridge and full cooking.",
+        spoiled_signs=[
+            "A sour or rotten smell instead of a smoky, salty one.",
+            "The meat turns gray, green or brown, or the fat turns yellow.",
+            "A slimy or sticky film on the slices.",
+            "Mold of any color. Throw out the whole pack.",
+        ],
+        how_to_store=[
+            "Pick up bacon last at the store and put it in the fridge as soon as you get home.",
+            "Once the pack is open, wrap the rest tightly or move it to a sealed bag.",
+            "Use raw bacon within 7 days, or freeze it.",
+            "Cool cooked bacon, wrap it in a paper towel inside a box, and eat it within 4 to 5 days.",
+        ],
+        common_mistake="Freezing a whole pack, then hacking at a frozen block for two slices. Roll each slice up, or lay "
+                       "slices flat on a tray with paper between them, and freeze them before bagging. You can then "
+                       "take out exactly what you need.",
+        freezing="Raw bacon is best used within 1 month of freezing. The USDA bacon guide allows up to 4 months for "
+                 "quality, but salty, fatty meat picks up off flavors in the freezer, so we use the shorter time from "
+                 "the USDA storage chart. Thaw it in the fridge, or cook thin slices straight from frozen.",
+        sources=[FSIS_BACON, FS_COLD_CHART, FOODKEEPER],
+        related=["ground-beef", "raw-chicken"],
     ),
 ]

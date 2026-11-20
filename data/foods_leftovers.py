@@ -1,4 +1,4 @@
-from data.sources import FDA_BAD_BUG_BOOK, FOODKEEPER, FS_COLD_CHART, FSIS_LEFTOVERS
+from data.sources import FDA_BAD_BUG_BOOK, FOODKEEPER, FS_COLD_CHART, FSIS_LEFTOVERS, FSIS_MOLDS
 from kot.schema import Food, Span
 
 FOODS = [
@@ -110,5 +110,75 @@ FOODS = [
                  "no thawing needed.",
         sources=[FS_COLD_CHART, FOODKEEPER, FSIS_LEFTOVERS],
         related=["cooked-chicken", "cooked-rice"],
+    ),
+    Food(
+        slug="soup",
+        name="Soup",
+        category="leftovers",
+        question="How long does soup last in the fridge?",
+        description="Homemade soup and stew last 3 to 4 days in the fridge and 2 to 3 months in the freezer. "
+                    "Here is how to cool a big pot safely.",
+        storage={
+            "fridge": Span(3, 4, "days", "Soups and stews, with or without meat."),
+            "freezer": Span(2, 3, "months"),
+            "counter": Span(0, 2, "hours", "Only 1 hour if the room is above {temp:90}."),
+        },
+        why="A big pot of soup holds its heat for hours. While it cools slowly, it passes through the warm range "
+            "where germs grow fastest. The cooling is the risky part, not the fridge.",
+        spoiled_signs=[
+            "A sour smell, or a taste that is sharper than it should be.",
+            "Bubbles or fizz when the soup is cold. That means something is growing in it.",
+            "Mold on the top or around the edge of the box.",
+            "A slimy layer, or a cloudy look in a soup that was clear.",
+        ],
+        how_to_store=[
+            "Split a big pot into small, shallow boxes so each one cools fast.",
+            "Put them in the fridge within 2 hours of cooking. Warm boxes are fine in the fridge.",
+            "Reheat only the bowl you will eat, and bring it to a full boil or {temp:165}.",
+            "Soups with cream or seafood are the most fragile, so eat those first.",
+        ],
+        common_mistake="Leaving the whole pot on the stove overnight to cool, then putting it in the fridge in the "
+                       "morning. By then it has spent hours in the danger zone. Boiling it again kills germs but not "
+                       "some of the toxins they leave behind, so a pot left out overnight should be thrown out.",
+        freezing="Soup freezes very well for 2 to 3 months. Leave a little space at the top of each box, because it "
+                 "swells as it freezes. Soups with pasta or potatoes go soft, so freeze the soup without them and "
+                 "add them fresh when you reheat. Cream soups may split; stir them hard as they warm.",
+        sources=[FS_COLD_CHART, FSIS_LEFTOVERS],
+        related=["cooked-pasta", "cooked-rice"],
+    ),
+    Food(
+        slug="cooked-pasta",
+        name="Cooked pasta",
+        category="leftovers",
+        question="How long does cooked pasta last?",
+        description="Cooked pasta lasts 3 to 4 days in the fridge and 1 to 2 months in the freezer. "
+                    "Moldy pasta goes in the trash. Here is how to store it so it does not clump.",
+        storage={
+            "fridge": Span(3, 4, "days", "Plain or with sauce."),
+            "freezer": Span(1, 2, "months"),
+            "counter": Span(0, 2, "hours", "Only 1 hour if the room is above {temp:90}."),
+        },
+        why="Cooked pasta is soft, wet and starchy, which suits germs and mold. "
+            "The USDA FoodKeeper app allows up to 5 days, but we use the safer 3 to 4 day rule for all leftovers.",
+        spoiled_signs=[
+            "Slimy strands, or a film that will not rinse off.",
+            "A sour or musty smell.",
+            "Any mold. The USDA says moldy cooked pasta should be thrown out, not picked over.",
+            "Dry, hard ends are just dried out. They are safe, but you can trim them.",
+        ],
+        how_to_store=[
+            "Let it cool for a few minutes, then put it in a shallow sealed box within 2 hours.",
+            "Toss plain pasta with a little oil so it does not stick into one block.",
+            "Store pasta and sauce together or apart; both last 3 to 4 days.",
+            "Reheat it with a splash of water in a pan or the microwave until it is steaming hot.",
+        ],
+        common_mistake="Cooking a whole bag of pasta on Sunday for the week. By Friday it is past its safe time. "
+                       "Cook enough for 3 days, and freeze any extra right away instead of keeping it in the fridge "
+                       "until it is too late.",
+        freezing="Cooked pasta freezes for 1 to 2 months. Cook it a minute less than usual so it does not go mushy, "
+                 "cool it, toss it with a little oil, and freeze it in portions. Baked pasta dishes like lasagna "
+                 "freeze better than plain noodles. Reheat it straight from frozen in sauce or boiling water.",
+        sources=[FOODKEEPER, FSIS_LEFTOVERS, FSIS_MOLDS],
+        related=["soup", "cooked-rice", "cooked-shrimp"],
     ),
 ]

@@ -116,7 +116,6 @@ Bison steak (raw)|meat|3-5d|6-9m||no|
 Ground bison (raw)|meat|1-2d|3-4m||no|
 Rabbit (raw)|meat|2d|9m||no|
 Liver and other organ meats|meat|1-2d|3-4m||no|
-Bacon (raw)|meat|o:1w|1m||no|
 Uncured bacon (raw)|meat|4-7d|3-4w||no|
 Turkey bacon|meat|o:7d|2-4m||no|Unopened: 2 weeks.
 Corned beef (in pouch)|meat|5-7d|1m||no|
@@ -152,7 +151,6 @@ Halibut (raw)|seafood|1-2d|6-8m||no|
 Flounder (raw)|seafood|1-2d|6-8m||no|
 Sole (raw)|seafood|1-2d|6-8m||no|
 Pollock (raw)|seafood|1-2d|4-8m||no|
-Salmon (raw)|seafood|1-2d|2-3m||no|
 Tuna steak (raw)|seafood|1-2d|2-3m||no|
 Catfish (raw)|seafood|1-2d|2-3m||no|
 Mackerel (raw)|seafood|1-2d|2-3m||no|

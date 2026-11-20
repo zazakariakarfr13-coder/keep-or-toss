@@ -17,3 +17,9 @@ CDC_LISTERIA = Source("CDC", "Preventing Listeria Infection",
                       "https://www.cdc.gov/listeria/prevention/index.html")
 UK_DATES = Source("GOV.UK", "Best before and use-by dates",
                   "https://www.gov.uk/understanding-food-labelling/best-before-and-use-by-dates")
+FSIS_MOLDS = Source("USDA FSIS", "Molds on Food: Are They Dangerous?",
+                    "https://www.fsis.usda.gov/food-safety/safe-food-handling-and-preparation/food-safety-basics/molds-food-are-they-dangerous")
+FSIS_BACON = Source("USDA FSIS", "Bacon and Food Safety",
+                    "https://www.fsis.usda.gov/food-safety/safe-food-handling-and-preparation/meat-catfish/bacon-and-food-safety")
+FS_TEMPS = Source("FoodSafety.gov", "Safe Minimum Internal Temperatures",
+                  "https://www.foodsafety.gov/food-safety-charts/safe-minimum-internal-temperatures")
